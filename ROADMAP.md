@@ -1,36 +1,34 @@
-### Future Features & Roadmap
+## Future Features & Roadmap
 
+Here’s a prioritized list of potential improvements for **NukeCodeBridge**:
 
-#### High Priority (Next Updates)
-- "Open Folder" button or context menu action to quickly open the current user’s script folder in Explorer/Finder
-- Improve safety messages in confirmation popups for better clarity
-- Add a simple status bar at the bottom showing current user and number of scripts
-- Auto-save option when changes are detected
-- Backup on overwrite (automatically create `.bak` files before saving)
+### High Priority (Next Updates)
+- Support for more file types beyond `.py` and `.txt` (e.g. `.nk`, `.gizmo`, `.pyi`, `.json`, `.yaml`, `.md`)
+- "Open Folder" button or context menu action to quickly open the current user’s folder in Explorer/Finder
+- Improve confirmation popup messages for better clarity
+- Add a simple status bar at the bottom showing current user and file count
 
-#### Medium Priority
-- **Read-only mode** for official/studio scripts (prevent accidental editing of shared tools)
-- Script **categories or tags** (e.g. `#render`, `#gizmo`, `#utility`) with filtering
-- **Recent scripts** list (last 5–10 opened files)
-- Dark/Light theme toggle to better match Nuke’s current UI
+### Medium Priority
+- **Read-only mode** for official/studio files (prevent accidental editing)
+- Script **categories or tags** with filtering
+- **Recent files** list (last 10 opened)
+- Auto-save when changes are detected
+- Backup on overwrite (create `.bak` files)
 
-#### Nice-to-Have / Long Term
-- Search **inside** script content (not just filenames)
+### Nice-to-Have / Long Term
+- Search **inside** file content (not just filenames)
 - Export / Import entire user folder as `.zip`
-- Simple script **versioning** (keep last 3 versions with timestamps)
-- Run scripts in a separate thread to prevent Nuke from freezing on heavy code
-- **Favorite / Star** scripts for quick access
-- Drag & drop support for Python files into the editor
-- Mini output console to display `print()` results from executed scripts
-- Basic plugin updater (check for newer versions on GitHub)
+- Simple file **versioning** (keep last few versions with timestamps)
+- Drag & drop support for any file type into the editor
+- Mini output console for script results
+- Dark/Light theme toggle to match Nuke’s UI
 
-#### Ideas for Even Further Future
-- Multi-user collaboration features (comments on scripts)
+### Ideas for Even Further Future
+- Support for Nuke-specific files (`.nk` scene files, gizmos, presets)
+- Basic collaboration features (comments on files)
 - Script approval workflow for studio-wide tools
-- Integration with Nuke’s Gizmo system
-- Logging of executed scripts (who ran what and when)
+- Logging of executed scripts
 
----
 
 **Contributions welcome!**  
-If you have ideas or want to help implement any of these features, feel free to open an issue or submit a pull request on GitHub.
+If you have ideas or want to help implement any of these features, feel free to open an issue or submit a pull request.
