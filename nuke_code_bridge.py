@@ -8,18 +8,14 @@ import re
 # ============================
 
 # <<< EDIT THIS BASE PATH FOR YOUR STUDIO >>>
-# Windows example: r"\\server\share\SharedNukeScripts"
-# Linux   example: "/mnt/studio/SharedNukeScripts"
 BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this!
 
-# === PER-USER FOLDERS (DEFAULT) ===
-# Each user gets their own subfolder
-SHARED_SERVER_PATH = BASE_SHARED_PATH
+# === SAFETY SETTINGS ===
+# Set this to True (recommended) to show a confirmation popup before running any code.
+SHOW_RUN_CONFIRMATION = True
 
-# === SINGLE SHARED FOLDER MODE (optional) ===
-# Uncomment these lines to switch to one common folder:
-# SHARED_SERVER_PATH = os.path.join(BASE_SHARED_PATH, "Shared")
-# CURRENT_USER = "Shared"
+# === PER-USER FOLDERS (DEFAULT) ===
+SHARED_SERVER_PATH = BASE_SHARED_PATH
 
 # Safe current user detection
 try:
@@ -198,8 +194,8 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if not os.path.exists(SHARED_SERVER_PATH):
             try:
                 os.makedirs(SHARED_SERVER_PATH)
-            except Exception as e:
-                print(f"Could not create or access shared path: {e}")
+            except Exception:
+                pass
         
         self.is_modified = False
         self.currently_loaded_path = ""
@@ -208,7 +204,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         self.refresh_users()
 
     def initUI(self):
-        self.setWindowTitle("NukeCodeBridge v0.5 beta — Remco Consten")
+        self.setWindowTitle("NukeCodeBridge v0.5 beta")
         self.resize(800, 550)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         
@@ -298,7 +294,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
     def mark_as_modified(self):
         if self.code_editor.toPlainText() or self.currently_loaded_path:
             self.is_modified = True
-            self.setWindowTitle("NukeCodeBridge v0.5 beta — Remco Consten *")
+            self.setWindowTitle("NukeCodeBridge v0.5 beta *")
 
     def closeEvent(self, event):
         if self.check_unsaved_changes():
@@ -397,8 +393,18 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if os.path.exists(filepath):
             with open(filepath, 'r') as f:
                 code = f.read()
+
+            if SHOW_RUN_CONFIRMATION:
+                reply = QtWidgets.QMessageBox.question(
+                    self, 'Confirm Run', 
+                    f"Run script: {item.text()}?\n\nOnly run code from trusted sources.",
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, 
+                    QtWidgets.QMessageBox.No)
+                if reply == QtWidgets.QMessageBox.No:
+                    return
+
             try:
-                exec(code, globals())  # nosec
+                exec(code, globals())
             except Exception as e:
                 self.show_popup("Script Error", f"Error running script:\n{str(e)}", is_error=True)
 
@@ -432,7 +438,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if not os.path.exists(user_dir):
             try:
                 os.makedirs(user_dir)
-            except Exception:  # nosec
+            except Exception:
                 pass
                 
         if os.path.exists(user_dir):
@@ -459,7 +465,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
                 
             self.currently_loaded_path = filepath
             self.is_modified = False
-            self.setWindowTitle("NukeCodeBridge v0.5 beta — Remco Consten")
+            self.setWindowTitle("NukeCodeBridge v0.5 beta")
 
     def save_script(self):
         selected_user = self.user_dropdown.currentText()
@@ -495,7 +501,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
             
             self.is_modified = False
             self.currently_loaded_path = filepath
-            self.setWindowTitle("NukeCodeBridge v0.5 beta — Remco Consten")
+            self.setWindowTitle("NukeCodeBridge v0.5 beta")
             
             self.show_popup("Success", f"Saved: {name}\nUnder user: '{selected_user}'")
         except Exception as e:
@@ -511,9 +517,18 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if not code.strip():
             self.show_popup("Empty Script", "No code to run.", is_error=True)
             return
+
+        if SHOW_RUN_CONFIRMATION:
+            reply = QtWidgets.QMessageBox.question(
+                self, 'Confirm Execution', 
+                "Run this code?\n\nOnly run scripts from people you trust.",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, 
+                QtWidgets.QMessageBox.No)
+            if reply == QtWidgets.QMessageBox.No:
+                return
             
         try:
-            exec(code, globals())  # nosec
+            exec(code, globals())
         except Exception as e:
             self.show_popup("Script Error", f"Error running script:\n{str(e)}", is_error=True)
 
