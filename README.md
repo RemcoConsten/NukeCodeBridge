@@ -105,29 +105,3 @@ BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change 
 ---
 
 **NukeCodeBridge v0.5 beta** — Remco Consten
-```
-
-This is the full, up-to-date README.md that matches exactly what you have in your `init.py` and `menu.py`.  
-You can copy and paste it directly into your repository.
-
-Let me know if you want a keyboard shortcut added or any final tweaks!- **Context Menu**: Right-click any script to Run, Rename, Delete, or Copy its full network path.
-- **Cross-Platform**: Works on Windows and Linux with proper path handling.
-- **Cross-Version Compatible**: Automatically supports PySide2 (Nuke 13 and earlier) and PySide6 (Nuke 14+).
-
-## 🚀 Installation
-
-### Step 1: Prepare the Shared Location (Do this once)
-
-1. Choose or create a central network folder that all Nuke users can read/write to.  
-   Example paths:
-   - Windows: `\\server\share\SharedNukeScripts`
-   - Linux: `/mnt/studio/SharedNukeScripts`
-
-2. Place the `NukeCodeBridge.py` file on the network share or in your studio tools directory.
-
-### Step 2: Configure the Script
-
-Open `NukeCodeBridge.py` and update the base path at the top:
-
-```python
-BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this to your studio path
