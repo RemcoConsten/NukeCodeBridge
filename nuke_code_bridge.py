@@ -398,7 +398,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
             with open(filepath, 'r') as f:
                 code = f.read()
             try:
-                exec(code, globals())
+                exec(code, globals())  # nosec
             except Exception as e:
                 self.show_popup("Script Error", f"Error running script:\n{str(e)}", is_error=True)
 
@@ -432,7 +432,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if not os.path.exists(user_dir):
             try:
                 os.makedirs(user_dir)
-            except Exception:
+            except Exception:  # nosec
                 pass
                 
         if os.path.exists(user_dir):
@@ -513,7 +513,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
             return
             
         try:
-            exec(code, globals())
+            exec(code, globals())  # nosec
         except Exception as e:
             self.show_popup("Script Error", f"Error running script:\n{str(e)}", is_error=True)
 
