@@ -87,8 +87,8 @@ BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change 
 SHOW_RUN_CONFIRMATION = True
 ```
 
-- **For Per-User Folders**: Leave the script as-is (recommended for most studios).
-- **For One Shared Folder**: Find the "Single Shared Folder Mode" comment in the script and uncomment the two lines as instructed.
+- **For Per-User Folders**: Leave the script as-is (recommended).
+- **For One Shared Folder**: Find the "Single Shared Folder Mode" comment and uncomment the two lines.
 
 ## Requirements
 
