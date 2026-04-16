@@ -89,7 +89,6 @@ BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change 
 ## Notes
 
 - This is an early version (v0.5). Feel free to try it out and give feedback!
-- **Security**: The tool uses `exec()` to run scripts. A confirmation dialog will always ask before running any code.
-- Only run scripts from people you trust.
+- **Security**: Only run scripts from people you trust.
 - **Permissions**: Make sure users can read and write to the shared folder.
 - **Linux users**: The network share must be properly mounted with read/write rights.
