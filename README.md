@@ -71,14 +71,18 @@ Restart Nuke. You should now see **Scripts > NukeCodeBridge** in the top menu.
 
 ## How to Configure
 
-Open **`nuke_code_bridge.py`** and change this line to point to your shared scripts folder:
+Open **`nuke_code_bridge.py`** and make these changes at the top:
 
 ```python
-BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this!
+# Change this to your shared scripts folder
+BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"
+
+# Safety setting - change to False if you want to disable the confirmation popup
+SHOW_RUN_CONFIRMATION = True
 ```
 
-- Leave it as-is for **per-user folders** (recommended for most studios).
-- To use **one shared folder** for everyone, uncomment the two lines right below it.
+- Leave `BASE_SHARED_PATH` as-is for **per-user folders** (recommended).
+- To use **one shared folder** for everyone, uncomment the two lines below it in the script.
 
 ## Requirements
 
