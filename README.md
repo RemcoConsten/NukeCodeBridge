@@ -3,7 +3,7 @@ NukeCodeBridge is a lightweight mini IDE for Nuke that centralizes Python script
 
 
 Here is a complete, ready-to-paste README.md file formatted perfectly for GitHub. You can copy everything below and paste it directly into your GitHub repository.
-# Nuke Network Script Manager
+# NukeCodeBridge - Nuke Network Script Manager
 A lightweight, network-ready mini-IDE for Foundry's Nuke. This tool allows pipeline developers and compositors to write, save, run, and share Python scripts across a shared studio network directly from inside Nuke.
 ## ✨ Features
  * **Network-Ready:** Saves scripts to user-specific folders on a shared network drive.
