@@ -96,9 +96,9 @@ SHOW_RUN_CONFIRMATION = True
 - Read/write access to the folders you created
 - No extra software needed
 
-## Notes
+## Notes & Security
 
-- This is an early version (v0.5). Feel free to try it out and give feedback!
+- This is an early version (v0.5). Feel free to try it out and report any issues on GitHub.
 - **Security**: Only run scripts from people you trust.
-- **Permissions**: Make sure users can read and write to the shared folder.
-- **Linux users**: The network share must be properly mounted with read/write rights.
+- A confirmation popup is enabled by default before running any code.
+- Make sure your team has read/write access to the shared network folder.
