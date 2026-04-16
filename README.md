@@ -14,7 +14,7 @@ No more copying scripts around — everyone in the studio can access the same to
 - Works on both Windows and Linux
 - Supports Nuke 13 and newer versions
 
-## 🚀 Easy Installation (Step-by-step for beginners)
+## 🚀 Easy Installation (Step-by-step)
 
 ### Step 1: Prepare the folders
 
