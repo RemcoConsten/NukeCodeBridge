@@ -99,9 +99,11 @@ BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change 
 ## Notes
 
 - This is a **beta** release (v0.5). Test thoroughly in your pipeline.
-- The tool uses `exec()` to run scripts — only execute code you trust.
-- On Linux, ensure the network share is correctly mounted with proper permissions.
+- **Security**: The tool uses `exec()` to run scripts — only execute code you trust.
+- **Permissions**: Ensure the `BASE_SHARED_PATH` is accessible and has Read/Write permissions for your users.
+- **Linux**: Ensure the network share is correctly mounted (e.g., via `/etc/fstab` or an automounter) **and** has proper Read/Write permissions.
 
 ---
 
 **NukeCodeBridge v0.5 beta** — Remco Consten
+```
