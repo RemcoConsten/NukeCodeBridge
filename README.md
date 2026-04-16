@@ -1,64 +1,92 @@
+
 # NukeCodeBridge
-NukeCodeBridge is a lightweight mini IDE for Nuke that centralizes Python script management. It features a network-synced file system, Python syntax highlighting, and cross-version support (PySide2/6). It eliminates the need to manually copy-paste scripts between artists by providing a shared, searchable repository accessible from the Nuke menu.
 
+**NukeCodeBridge v0.5 beta** — Remco Consten
 
-Here is a complete, ready-to-paste README.md file formatted perfectly for GitHub. You can copy everything below and paste it directly into your GitHub repository.
-# NukeCodeBridge - Nuke Network Script Manager
-A lightweight, network-ready mini-IDE for Foundry's Nuke. This tool allows pipeline developers and compositors to write, save, run, and share Python scripts across a shared studio network directly from inside Nuke.
+A lightweight, network-ready mini-IDE for Foundry's Nuke. It provides a centralized, searchable repository for Python scripts that lives on a shared studio network drive. No more copying and pasting scripts between artists — everyone can write, save, run, and share tools directly inside Nuke.
+
 ## ✨ Features
- * **Network-Ready:** Saves scripts to user-specific folders on a shared network drive.
- * **Smart Code Editor:** Includes Python syntax highlighting, line numbers, tab-to-spaces conversion, and smart auto-indentation.
- * **Unsaved Changes Tracking:** Warns you before accidentally closing or switching scripts if you have unsaved work.
- * **Code Execution:** Run the entire script, or highlight specific lines to execute only the selection.
- * **Quick Search:** Live-filtering search bar to easily find scripts in large directories.
- * **Context Menu:** Right-click scripts to Rename, Delete, Run, or Copy their exact network path to share with colleagues.
- * **Cross-Version Compatible:** Automatically handles PySide2 (Nuke 13 and below) and PySide6 (Nuke 14+).
-## 🚀 Installation Guide
-Installing this tool requires configuring a central server location for the tool itself, and then updating each user's local Nuke configuration files to load it.
-### Step 1: Server Setup (Do this once)
- 1. Create a directory on your shared server to store Nuke plugins. For example: Z:\Pipeline\NukePlugins
- 2. Create a secondary directory on your server where the actual user scripts will be saved. For example: Z:\Pipeline\SharedNukeScripts
- 3. Download network_script_manager.py and place it in your plugins folder.
- 4. Open the file and update the SHARED_SERVER_PATH variable at the top of the script to match your scripts folder:
-```python
-# network_script_manager.py
-SHARED_SERVER_PATH = r"Z:\Pipeline\SharedNukeScripts" 
 
+- **Per-User Network Storage** (default): Each user gets their own folder on the shared drive for personal scripts.
+- **Smart Code Editor**: Python syntax highlighting, line numbers, tab-to-4-spaces, smart auto-indent on colon, and Ctrl+Wheel zoom.
+- **Unsaved Changes Protection**: Warns before closing or switching if you have unsaved work.
+- **Flexible Execution**: Run the full script or just the selected lines.
+- **Live Search**: Real-time filtering of scripts.
+- **Context Menu**: Right-click any script to Run, Rename, Delete, or Copy its full network path.
+- **Cross-Platform**: Works on Windows and Linux (and macOS) with proper path handling.
+- **Cross-Version Compatible**: Automatically supports PySide2 (Nuke 13 and earlier) and PySide6 (Nuke 14+).
+
+## 🚀 Installation
+
+### Step 1: Prepare the Shared Location (Do this once)
+
+1. Choose or create a central network folder that all Nuke users can read/write to.  
+   Example paths:
+   - Windows: `\\server\share\SharedNukeScripts`
+   - Linux: `/mnt/studio/SharedNukeScripts`
+
+2. Save the `nuke_code_bridge.py` file (or whatever you name it) somewhere accessible, ideally on the same network share or in a studio tools directory.
+
+### Step 2: Configure the Script
+
+Open the script and edit the configuration section at the top:
+
+```python
+BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # Change this!
 ```
-### Step 2: Client Setup (Do this for each user)
-To load the tool into Nuke, you need to modify the user's init.py and menu.py files. These are located in the user's .nuke directory:
- * **Windows:** C:\Users\<Username>\.nuke
- * **Mac:** /Users/<Username>/.nuke
- * **Linux:** /home/<Username>/.nuke
-#### 1. Update init.py
-Open init.py (create it if it doesn't exist) and add the following code to tell Nuke where to find the plugin on the server:
+
+- **Per-user folders** (default) → Each artist gets their own subfolder automatically.
+- **Single shared folder** (optional, more secure/collaborative) → Uncomment the two lines in the config section to force everything into one common "Shared" folder.
+
+### Step 3: Load in Nuke
+
+Add one of the following to your `menu.py` (or `init.py`) so the tool appears in the Nuke menu:
+
 ```python
 import nuke
 
-# Add the server directory to Nuke's plugin path
-nuke.pluginAddPath(r"Z:\Pipeline\NukePlugins")
+def launch_nuke_code_bridge():
+    import nuke_code_bridge
+    nuke_code_bridge.start_nuke_code_bridge()
 
+nuke.menu('Nuke').addCommand('Scripts/NukeCodeBridge', launch_nuke_code_bridge)
 ```
-#### 2. Update menu.py
-Open menu.py (create it if it doesn't exist) and add the following code to create a custom top-menu button and keyboard shortcut (Ctrl+Shift+M):
+
+Alternatively, you can run it manually from the Script Editor:
+
 ```python
-import nuke
-
-# Create a new top-level menu dropdown
-custom_menu = nuke.menu('Nuke').addMenu('Studio Tools')
-
-# Add the command to launch the UI
-custom_menu.addCommand('Network Script Manager', 'import network_script_manager; network_script_manager.start_network_manager()', 'ctrl+shift+m')
-
+import nuke_code_bridge
+nuke_code_bridge.start_nuke_code_bridge()
 ```
-## 📖 How to Use
- 1. Launch Nuke and click **Studio Tools > Network Script Manager** in the top menu bar.
- 2. **Writing Code:** Type or paste your Python code into the text editor. Hold Ctrl and scroll your mouse wheel to zoom the font in or out.
- 3. **Saving:** Enter a name in the top text field and click **Save to Current User**. It will automatically be saved as a .py file under your username on the network.
- 4. **Running Code:** Click **Run Code** to execute the script in Nuke. If you highlight a specific block of text, only that highlighted portion will run.
- 5. **Viewing Others:** Use the dropdown menu on the left to select a colleague's name. You can view, load, and run their saved scripts.
- 6. **File Management:** Right-click any script in the list to trigger the context menu, allowing you to easily rename, delete, or copy the file path.
-## 🛠️ Requirements
- * Foundry Nuke 11.0 or higher.
- * Compatible with both PySide2 and PySide6.
- * Network read/write permissions for the target deployment directory.
+
+## Configuration Options
+
+At the top of the script you can easily switch modes:
+
+- **Per-user mode** (recommended default): Every user has a personal folder.
+- **Single-folder mode**: Uncomment the lines to use one common folder for the whole team (better for strict permission environments).
+
+The tool will automatically create folders as needed and includes safe fallbacks for restricted environments.
+
+## Requirements
+
+- Foundry Nuke 13 or newer
+- Read/Write access to the shared network path for all users
+- No additional Python packages required
+
+## Notes
+
+- This is a **beta** tool (v0.5). Test thoroughly in your studio environment.
+- `exec()` is used to run scripts — only run code you trust.
+- On Linux, ensure the network share is properly mounted with correct permissions.
+
+---
+
+Made with ❤️ for the Nuke community.
+
+Feel free to contribute improvements or report issues!
+```
+
+This README is now clean, professional, generic, and reflects all the latest updates (name change, subtle credit, per-user default, cross-platform support, etc.).
+
+Would you like me to add sections for "Known Limitations", "Future Plans", or a simple screenshot placeholder? Just let me know!
