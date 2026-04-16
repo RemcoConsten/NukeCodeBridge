@@ -2,42 +2,43 @@
 
 **NukeCodeBridge v0.5 beta**
 
-A lightweight, network-ready mini-IDE for Foundry's Nuke. It provides a centralized, searchable repository for Python scripts that lives on a shared studio network drive. No more copying and pasting scripts between artists — everyone can write, save, run, and share tools directly inside Nuke.
+A simple tool that lets you save, organize, and run Python scripts directly inside Nuke using a shared network folder.  
+No more copying scripts around — everyone in the studio can access the same tools easily.
 
 ## ✨ Features
 
-- **Per-User Network Storage** (default): Each user gets their own folder on the shared drive for personal scripts.
-- **Smart Code Editor**: Python syntax highlighting, line numbers, tab-to-4-spaces, smart auto-indent on colon, and Ctrl+Wheel zoom.
-- **Unsaved Changes Protection**: Warns before closing or switching if you have unsaved work.
-- **Flexible Execution**: Run the full script or just the selected lines.
-- **Live Search**: Real-time filtering of scripts.
-- **Context Menu**: Right-click any script to Run, Rename, Delete, or Copy its full network path.
-- **Cross-Platform**: Works on Windows and Linux with proper path handling.
-- **Cross-Version Compatible**: Automatically supports PySide2 (Nuke 13 and earlier) and PySide6 (Nuke 14+).
+- Save scripts to a shared location (one folder per user by default)
+- Built-in code editor with line numbers, syntax highlighting, and auto-indent
+- Run scripts or just selected parts of code
+- Search and right-click menu (Run, Rename, Delete, Copy path)
+- Works on both Windows and Linux
+- Supports Nuke 13 and newer versions
 
-## 🚀 Installation
+## 🚀 Easy Installation (Step-by-step for beginners)
 
-### Step 1: Prepare the Shared Location
+### Step 1: Prepare the folders
 
-1. Choose or create a central network folder that all Nuke users can read/write to.  
-   Example paths:
-   - Windows: `\\server\share\SharedNukeScripts`
-   - Linux: `/mnt/studio/SharedNukeScripts`
+1. Create two folders:
+   - One for scripts: e.g. `\\server\share\SharedNukeScripts`
+   - One for tools: e.g. `\\server\share\tools`
 
-2. Place the `NukeCodeBridge.py` file inside a tools directory (for example: `\\server\share\tools` or `Y:\StudioTools`).
+   **If you are working alone or in a small studio**, you can simply create these folders on your local drive (e.g. `C:\NukeTools`).
+
+   **Tip:** Use full network paths like `\\server\share\...` instead of mapped drive letters like `Y:\` — this works better on all computers.
+
+2. Put the file `NukeCodeBridge.py` into the **tools** folder.
 
 ### Step 2: Update `init.py`
 
-Add or replace the content of your studio’s `init.py` with the following:
+Open or create the studio’s `init.py` file and add this code:
 
 ```python
 import nuke
 import os
 
 # NukeCodeBridge v0.5 beta
-NUKE_CODE_BRIDGE_PATH = r"\\YOUR_SERVER\YOUR_SHARE\tools"   # ← CHANGE THIS
+NUKE_CODE_BRIDGE_PATH = r"\\YOUR_SERVER\YOUR_SHARE\tools"   # ← CHANGE THIS to the tools folder
 
-# Add the directory containing NukeCodeBridge.py to Nuke's plugin path
 if os.path.exists(NUKE_CODE_BRIDGE_PATH):
     nuke.pluginAddPath(NUKE_CODE_BRIDGE_PATH)
 else:
@@ -46,7 +47,7 @@ else:
 
 ### Step 3: Update `menu.py`
 
-Add or replace the content of your studio’s `menu.py` with the following:
+Open or create the studio’s `menu.py` file and add this code:
 
 ```python
 import nuke
@@ -59,37 +60,35 @@ def launch_nuke_code_bridge():
     except Exception as e:
         nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
 
-# Add tool to the Nuke menu
 nuke.menu('Nuke').addCommand(
     'Scripts/NukeCodeBridge', 
     launch_nuke_code_bridge,
-    shortcut=None,                    # Change to 'Shift+C' or similar if you want a hotkey
-    tooltip='NukeCodeBridge v0.5 beta - Network Script Manager'
+    tooltip='Open NukeCodeBridge - Network Script Manager'
 )
 ```
 
-After restarting Nuke, you should see **Scripts > NukeCodeBridge** in the top menu.
+Restart Nuke. You should now see **Scripts > NukeCodeBridge** in the top menu.
 
-## Configuration Options
+## How to Configure (Important!)
 
-Open `NukeCodeBridge.py` and edit the base path near the top:
+Before giving the script to the whole team (or using it yourself), open `NukeCodeBridge.py` and change this line:
 
 ```python
-BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this to your studio path
+BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this!
 ```
 
-- **Per-user folders** (default)  
-- **Single shared folder** (optional): Uncomment the two lines under the configuration section.
+- Leave it as-is for **per-user folders** (recommended).
+- To use **one shared folder** for everyone, uncomment the two lines right below it.
 
 ## Requirements
 
-- Foundry Nuke 13 or newer
-- Read/Write permissions on the shared network path for all users
-- No external Python packages required
+- Nuke 13 or newer
+- Read/write access to the folders you created
+- No extra software needed
 
 ## Notes
 
-- This is a **beta** release (v0.5). Test thoroughly in your pipeline.
-- **Security**: The tool uses `exec()` to run scripts — only execute code you trust.
-- **Permissions**: Ensure the `BASE_SHARED_PATH` is accessible and has Read/Write permissions for your users.
-- **Linux**: Ensure the network share is correctly mounted (e.g., via `/etc/fstab` or an automounter) **and** has proper Read/Write permissions.
+- This is a **beta** release (v0.5). Test it well before heavy use.
+- **Security**: Only run scripts you trust — the tool uses `exec()` to execute code.
+- **Permissions**: Make sure you (and your team) can both read and write to the shared folder.
+- **Linux users**: The network share must be properly mounted with read/write rights.
