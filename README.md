@@ -34,48 +34,7 @@ Add or replace the content of your studio’s `init.py` with the following:
 import nuke
 import os
 
-# =============================================
 # NukeCodeBridge v0.5 beta
-# Network Script Manager for Nuke
-# =============================================
-
-# <<< EDIT THIS PATH TO WHERE YOUR NukeCodeBridge.py IS LOCATED >>>
-NUKE_CODE_BRIDGE_PATH = r"\\YOUR_SERVER\YOUR_SHARE\tools"   # ← CHANGE THIS
-
-# Add the directory containing NukeCodeBridge.py to Nuke's plugin path
-if os.path.exists(NUKE_CODE_BRIDGE_PATH):
-    nuke.pluginAddPath(NUKE_CODE_BRIDGE_PATH)
-else:
-    nuke.message(f"Warning: NukeCodeBridge path not found:\n{NUKE_CODE_BRIDGE_PATH}")- **Live Search**: Real-time filtering of scripts.
-- **Context Menu**: Right-click any script to Run, Rename, Delete, or Copy its full network path.
-- **Cross-Platform**: Works on Windows and Linux with proper path handling.
-- **Cross-Version Compatible**: Automatically supports PySide2 (Nuke 13 and earlier) and PySide6 (Nuke 14+).
-
-## 🚀 Installation
-
-### Step 1: Prepare the Shared Location
-
-1. Choose or create a central network folder that all Nuke users can read/write to.  
-   Example paths:
-   - Windows: `\\server\share\SharedNukeScripts`
-   - Linux: `/mnt/studio/SharedNukeScripts`
-
-2. Place the `NukeCodeBridge.py` file inside a tools directory (for example: `\\server\share\tools` or `Y:\StudioTools`).
-
-### Step 2: Update `init.py`
-
-Add or replace the content of your studio’s `init.py` with the following:
-
-```python
-import nuke
-import os
-
-# =============================================
-# NukeCodeBridge v0.5 beta — Remco Consten
-# Network Script Manager for Nuke
-# =============================================
-
-# <<< EDIT THIS PATH TO WHERE YOUR NukeCodeBridge.py IS LOCATED >>>
 NUKE_CODE_BRIDGE_PATH = r"\\YOUR_SERVER\YOUR_SHARE\tools"   # ← CHANGE THIS
 
 # Add the directory containing NukeCodeBridge.py to Nuke's plugin path
@@ -91,10 +50,6 @@ Add or replace the content of your studio’s `menu.py` with the following:
 
 ```python
 import nuke
-
-# ========================
-# NukeCodeBridge Menu Entry
-# ========================
 
 def launch_nuke_code_bridge():
     """Launch NukeCodeBridge v0.5 beta"""
@@ -138,8 +93,3 @@ BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change 
 - **Security**: The tool uses `exec()` to run scripts — only execute code you trust.
 - **Permissions**: Ensure the `BASE_SHARED_PATH` is accessible and has Read/Write permissions for your users.
 - **Linux**: Ensure the network share is correctly mounted (e.g., via `/etc/fstab` or an automounter) **and** has proper Read/Write permissions.
-
----
-
-**NukeCodeBridge v0.5 beta** — Remco Consten
-```
