@@ -26,7 +26,7 @@ No more copying scripts around — everyone in the studio can access the same to
 
    **Tip:** Use full network paths like `\\server\share\...` instead of mapped drive letters like `Y:\` — this works better on all computers.
 
-2. Put the file `NukeCodeBridge.py` into the **tools** folder.
+2. Put the file **`nuke_code_bridge.py`** into the **tools** folder.
 
 ### Step 2: Update `init.py`
 
@@ -55,8 +55,8 @@ import nuke
 def launch_nuke_code_bridge():
     """Launch NukeCodeBridge v0.5 beta"""
     try:
-        import NukeCodeBridge
-        NukeCodeBridge.start_nuke_code_bridge()
+        import nuke_code_bridge
+        nuke_code_bridge.start_nuke_code_bridge()
     except Exception as e:
         nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
 
@@ -71,7 +71,7 @@ Restart Nuke. You should now see **Scripts > NukeCodeBridge** in the top menu.
 
 ## How to Configure (Important!)
 
-Before giving the script to the whole team (or using it yourself), open `NukeCodeBridge.py` and change this line:
+Before giving the script to the whole team (or using it yourself), open **`nuke_code_bridge.py`** and change this line:
 
 ```python
 BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this!
