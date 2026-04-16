@@ -69,20 +69,26 @@ nuke.menu('Nuke').addCommand(
 
 Restart Nuke. You should now see **Scripts > NukeCodeBridge** in the top menu.
 
-## How to Configure
+## ⚙️ How to Configure
 
-Open **`nuke_code_bridge.py`** and make these changes at the top:
+Open **`nuke_code_bridge.py`** in a text editor and edit the top configuration section:
 
 ```python
-# Change this to your shared scripts folder
-BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"
+# ============================
+# === STUDIO CONFIGURATION ===
+# ============================
 
-# Safety setting - change to False if you want to disable the confirmation popup
+# 1. Set your studio network location
+BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this!
+
+# 2. Safety Toggle
+# Set to True (default) to show a confirmation popup before running code.
+# Set to False if you want the "Run" button to execute immediately.
 SHOW_RUN_CONFIRMATION = True
 ```
 
-- Leave `BASE_SHARED_PATH` as-is for **per-user folders** (recommended).
-- To use **one shared folder** for everyone, uncomment the two lines below it in the script.
+- **For Per-User Folders**: Leave the script as-is (recommended for most studios).
+- **For One Shared Folder**: Find the "Single Shared Folder Mode" comment in the script and uncomment the two lines as instructed.
 
 ## Requirements
 
