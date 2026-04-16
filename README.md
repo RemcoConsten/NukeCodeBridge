@@ -69,15 +69,15 @@ nuke.menu('Nuke').addCommand(
 
 Restart Nuke. You should now see **Scripts > NukeCodeBridge** in the top menu.
 
-## How to Configure (Important!)
+## How to Configure
 
-Before giving the script to the whole team (or using it yourself), open **`nuke_code_bridge.py`** and change this line:
+Open **`nuke_code_bridge.py`** and change this line to point to your shared scripts folder:
 
 ```python
 BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this!
 ```
 
-- Leave it as-is for **per-user folders** (recommended).
+- Leave it as-is for **per-user folders** (recommended for most studios).
 - To use **one shared folder** for everyone, uncomment the two lines right below it.
 
 ## Requirements
@@ -88,7 +88,8 @@ BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change 
 
 ## Notes
 
-- This is a **beta** release (v0.5). Test it well before heavy use.
-- **Security**: Only run scripts you trust — the tool uses `exec()` to execute code.
-- **Permissions**: Make sure you (and your team) can both read and write to the shared folder.
+- This is an early version (v0.5). Feel free to try it out and give feedback!
+- **Security**: The tool uses `exec()` to run scripts. A confirmation dialog will always ask before running any code.
+- Only run scripts from people you trust.
+- **Permissions**: Make sure users can read and write to the shared folder.
 - **Linux users**: The network share must be properly mounted with read/write rights.
