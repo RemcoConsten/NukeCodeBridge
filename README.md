@@ -18,25 +18,25 @@ No more copying scripts around — everyone in the studio can access the same to
 
 ### Step 1: Prepare the folders
 
-1. Create the shared scripts folder:
-   - Fokder for scripts: e.g. `\\server\share\SharedNukeScripts`
+1. Create (or choose) your main **scripts folder** on the network. This is where all the Python scripts will be saved.
+   Example: `\\server\share\SharedNukeScripts`
 
-   **If you are working alone or in a small studio**, you can simply create these folders on your local drive (e.g. `C:\NukeTools`).
+   **If you are working alone or in a small studio**, you can create this on your local drive (e.g. `C:\NukeScripts`).
 
    **Tip:** Use full network paths like `\\server\share\...` instead of mapped drive letters like `Y:\` — this works better on all computers.
 
-2. Put the file **`nuke_code_bridge.py`** into the **tools** folder.
+2. Place the file **`nuke_code_bridge.py`** in any convenient location (for example, a `tools` folder, your desktop, or even inside the scripts folder).
 
-### Step 2: Update `init.py`
+### Step 2: Update init.py
 
-Open or create the studio’s `init.py` file and add this code:
+Open or create the studio’s `init.py` file and **adjust the path** to point to the folder containing `nuke_code_bridge.py`:
 
 ```python
 import nuke
 import os
 
 # NukeCodeBridge v0.5 beta
-NUKE_CODE_BRIDGE_PATH = r"\\YOUR_SERVER\YOUR_SHARE\tools"   # ← CHANGE THIS to the tools folder
+NUKE_CODE_BRIDGE_PATH = r"\\YOUR_SERVER\YOUR_SHARE\tools"   # ← CHANGE THIS to the actual folder containing nuke_code_bridge.py
 
 if os.path.exists(NUKE_CODE_BRIDGE_PATH):
     nuke.pluginAddPath(NUKE_CODE_BRIDGE_PATH)
@@ -92,7 +92,7 @@ SHOW_RUN_CONFIRMATION = True
 ## Requirements
 
 - Nuke 13 or newer
-- Read/write access to the folders you created
+- Read/write access to the scripts folder
 - No extra software needed
 
 ## Notes & Security
