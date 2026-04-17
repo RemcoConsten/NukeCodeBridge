@@ -122,3 +122,10 @@ Open `nuke_code_bridge.py` in your preferred text editor and update the followin
 
 ## 🤝 Contributing
 Contributions, discussions and ideas are welcome! Feel free to submit Pull Requests or open Issues to suggest new features or report bugs.
+
+---
+
+### 👨‍💻 Created by Remco Consten
+*VFX Artist & Pipeline Enthusiast*---
+
+[🔗 LinkedIn] (https://nl.linkedin.com/in/remco-consten-18449626&ved=2ahUKEwja_LOC9fWTAxW32gIHHdEAHKMQFnoECBoQAQ&usg=AOvVaw2ToeYLqTqA3Yd9z1TBSc-d) 
