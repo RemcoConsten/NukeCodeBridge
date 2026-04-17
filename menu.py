@@ -1,21 +1,27 @@
 import nuke
+import importlib
 
-# ========================
-# NukeCodeBridge Menu Entry
-# ========================
+# ==============================================================================
+# NukeCodeBridge - Menu Entry
+# ==============================================================================
 
 def launch_nuke_code_bridge():
-    """Launch NukeCodeBridge v0.5 beta"""
+    """
+    Imports and launches the NukeCodeBridge UI.
+    Using importlib.reload ensures code changes are applied without restarting Nuke.
+    """
     try:
-        import NukeCodeBridge
-        NukeCodeBridge.start_nuke_code_bridge()
+        import nuke_code_bridge
+        importlib.reload(nuke_code_bridge)
+        nuke_code_bridge.start_nuke_code_bridge()
     except Exception as e:
         nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
 
-# Add tool to the Nuke menu
-nuke.menu('Nuke').addCommand(
+# Add to the Nuke 'Nodes' menu or the top 'Nuke' menu bar
+toolbar = nuke.menu('Nuke')
+toolbar.addCommand(
     'Scripts/NukeCodeBridge', 
-    launch_nuke_code_bridge,
-    shortcut=None,                    # Change to 'Shift+C' or similar if you want a hotkey
-    tooltip='NukeCodeBridge v0.5 beta - Network Script Manager'
+    launch_nuke_code_bridge, 
+    icon='', # Optional: add a .png icon name here
+    tooltip='Network-based Python script manager for studio teams.'
 )
