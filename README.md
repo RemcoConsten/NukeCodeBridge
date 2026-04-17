@@ -18,9 +18,8 @@ No more copying scripts around — everyone in the studio can access the same to
 
 ### Step 1: Prepare the folders
 
-1. Create two folders:
+1. Create the shared scripts folder:
    - One for scripts: e.g. `\\server\share\SharedNukeScripts`
-   - One for tools: e.g. `\\server\share\tools`
 
    **If you are working alone or in a small studio**, you can simply create these folders on your local drive (e.g. `C:\NukeTools`).
 
