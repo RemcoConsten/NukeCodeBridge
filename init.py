@@ -1,26 +1,16 @@
-import nuke
 import os
+import nuke
 
-# =============================================
-# NukeCodeBridge v0.5 beta — Remco Consten
-# Network Script Manager for Nuke
-# =============================================
+# ==============================================================================
+# NukeCodeBridge - Init
+# ==============================================================================
 
-# <<< EDIT THIS PATH TO WHERE YOUR NukeCodeBridge.py IS LOCATED >>>
-# This tells Nuke where to find the tool on startup.
+# You can set an environment variable 'NUKE_CODE_BRIDGE_PATH' on the system
+# or simply replace the string below with your studio's tool path.
+REPO_PATH = os.environ.get("NUKE_CODE_BRIDGE_PATH", r"\\YOUR_SERVER\YOUR_SHARE\pipeline\tools")
 
-# Example paths:
-# Windows: r"\\server\share\tools"   or   r"Y:\StudioTools"
-# Linux:   "/mnt/studio/tools"
-
-NUKE_CODE_BRIDGE_PATH = r"\\YOUR_SERVER\YOUR_SHARE\tools"   # ← CHANGE THIS
-
-# Add the directory containing NukeCodeBridge.py to Nuke's plugin path
-if os.path.exists(NUKE_CODE_BRIDGE_PATH):
-    nuke.pluginAddPath(NUKE_CODE_BRIDGE_PATH)
-    # Optional quiet confirmation (uncomment if you want to see it once)
-    # print("NukeCodeBridge v0.5 beta — Path added successfully")
+if os.path.exists(REPO_PATH):
+    nuke.pluginAddPath(REPO_PATH)
 else:
-    nuke.message(f"Warning: NukeCodeBridge path not found:\n{NUKE_CODE_BRIDGE_PATH}")
-
-# =============================================
+    # We use print instead of nuke.message to prevent render-node hanging
+    print(f"[NukeCodeBridge] Warning: Path not found: {REPO_PATH}")
