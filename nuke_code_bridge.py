@@ -5,6 +5,7 @@ import re
 import subprocess
 
 # --- PySide Compatibility ---
+# Ensures the tool runs in both older Nuke (PySide2) and newer Nuke (PySide6)
 try:
     from PySide2 import QtWidgets, QtCore, QtGui
 except ImportError:
@@ -13,7 +14,7 @@ except ImportError:
 # ============================
 # === GLOBAL CONFIG ===
 # ============================
-VERSION = "v0.7 beta"
+VERSION = "v0.9 beta"
 AUTHOR = "Remco Consten"
 YEAR = "2026"
 
@@ -38,6 +39,7 @@ else:
 # ============================
 
 class LineNumberArea(QtWidgets.QWidget):
+    """Draws the line number bar on the left side of the editor."""
     def __init__(self, editor):
         super(LineNumberArea, self).__init__(editor)
         self.code_editor = editor
@@ -49,20 +51,23 @@ class LineNumberArea(QtWidgets.QWidget):
         self.code_editor.lineNumberAreaPaintEvent(event)
 
 class CodeEditor(QtWidgets.QPlainTextEdit):
+    """Main text editor widget with line numbering and highlighting."""
     def __init__(self, *args, **kwargs):
         super(CodeEditor, self).__init__(*args, **kwargs)
         self.line_number_area = LineNumberArea(self)
+        
+        # Connect signals for dynamic line number updates
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
         self.cursorPositionChanged.connect(self.highlightCurrentLine)
+        
         self.updateLineNumberAreaWidth(0)
         self.highlightCurrentLine()
         
-        font = QtGui.QFont("Courier New", 11) # Slightly larger font
+        # Code-friendly monospaced font
+        font = QtGui.QFont("Courier New", 11)
         font.setFixedPitch(True)
         self.setFont(font)
-        
-        # Ensure the editor expands to fill space
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
     def lineNumberAreaWidth(self):
@@ -90,6 +95,7 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
         self.line_number_area.setGeometry(QtCore.QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height()))
 
     def highlightCurrentLine(self):
+        """Draws a subtle background color on the line the cursor is currently on."""
         extra_selections = []
         if not self.isReadOnly():
             selection = QtWidgets.QTextEdit.ExtraSelection()
@@ -122,18 +128,23 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
             block_number += 1
 
 class PythonHighlighter(QtGui.QSyntaxHighlighter):
+    """Simple regex-based syntax highlighting for Python keywords and strings."""
     def __init__(self, document):
         super(PythonHighlighter, self).__init__(document)
         self.rules = []
+        
+        # Keywords
         keyword_format = QtGui.QTextCharFormat()
         keyword_format.setForeground(QtGui.QColor("#E28E46"))
         keywords = r'\b(def|class|import|from|return|if|elif|else|try|except|for|while|in|and|or|not|pass|print|True|False|None)\b'
         self.rules.append((keywords, keyword_format))
         
+        # Strings
         string_format = QtGui.QTextCharFormat()
         string_format.setForeground(QtGui.QColor("#6A8759"))
         self.rules.append((r'".*?"|\'.*?\'', string_format))
         
+        # Comments
         comment_format = QtGui.QTextCharFormat()
         comment_format.setForeground(QtGui.QColor("#808080"))
         self.rules.append((r'#.*', comment_format))
@@ -161,86 +172,67 @@ class NukeCodeBridgeUI(QtWidgets.QWidget):
 
     def initUI(self):
         self.setWindowTitle(f"NukeCodeBridge {VERSION}")
-        self.resize(1100, 750) # Increased default window size
+        self.resize(1100, 750)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         
-        # Main Layout (Vertical)
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 5)
         
-        # Splitter for dynamic resizing
+        # Splitter allows user to drag resize the Sidebar vs Editor
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
         self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        # --- Left Panel ---
+        # --- Left Panel (Browser) ---
         left_widget = QtWidgets.QWidget()
         left_layout = QtWidgets.QVBoxLayout(left_widget)
-        left_layout.setContentsMargins(0, 0, 5, 0)
-        
         self.user_dropdown = QtWidgets.QComboBox()
         self.user_dropdown.currentIndexChanged.connect(self.refresh_scripts)
-        
         self.search_bar = QtWidgets.QLineEdit()
         self.search_bar.setPlaceholderText("Search...")
-        
+        self.search_bar.textChanged.connect(self.filter_scripts)
         self.list_widget = QtWidgets.QListWidget()
         self.list_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.list_widget.itemClicked.connect(self.load_script)
         self.list_widget.customContextMenuRequested.connect(self.show_list_context_menu)
-        
         self.new_btn = QtWidgets.QPushButton("New Script")
         self.new_btn.setFixedHeight(30)
         self.new_btn.clicked.connect(self.clear_editor)
-        
-        left_layout.addWidget(QtWidgets.QLabel("User:"))
+        left_layout.addWidget(QtWidgets.QLabel("User Repository:"))
         left_layout.addWidget(self.user_dropdown)
         left_layout.addWidget(self.search_bar)
         left_layout.addWidget(self.list_widget)
         left_layout.addWidget(self.new_btn)
 
-        # --- Right Panel ---
+        # --- Right Panel (Editor) ---
         right_widget = QtWidgets.QWidget()
         right_layout = QtWidgets.QVBoxLayout(right_widget)
-        right_layout.setContentsMargins(5, 0, 0, 0)
-        
         self.name_input = QtWidgets.QLineEdit()
         self.name_input.setPlaceholderText("Script Name...")
-        self.name_input.setFixedHeight(25)
-        
         self.code_editor = CodeEditor()
         self.highlighter = PythonHighlighter(self.code_editor.document())
-        
         btn_layout = QtWidgets.QHBoxLayout()
         self.save_btn = QtWidgets.QPushButton("Save")
         self.save_btn.setFixedHeight(35)
         self.save_btn.clicked.connect(self.save_script)
-        
         self.run_btn = QtWidgets.QPushButton("Run Code")
         self.run_btn.setFixedHeight(35)
         self.run_btn.setStyleSheet("background-color: #3d6e3d; font-weight: bold; color: #fff;")
         self.run_btn.clicked.connect(self.run_script)
-        
         btn_layout.addWidget(self.save_btn)
         btn_layout.addWidget(self.run_btn)
-        
         right_layout.addWidget(self.name_input)
         right_layout.addWidget(self.code_editor)
         right_layout.addLayout(btn_layout)
 
-        # Splitter Assembly
         self.splitter.addWidget(left_widget)
         self.splitter.addWidget(right_widget)
-        
-        # Initial proportions: Sidebar 200px, Editor gets the rest
-        self.splitter.setSizes([200, 900])
-        self.splitter.setStretchFactor(1, 1) # Editor expands, sidebar stays relatively stable
+        self.splitter.setSizes([220, 880])
+        self.splitter.setStretchFactor(1, 1)
 
-        # --- Status Bar & Footer ---
+        # Bottom Bar setup
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.setFixedHeight(20)
         self.status_bar.setStyleSheet("color: #888; border-top: 1px solid #333; font-size: 10px;")
-
-        footer_layout = QtWidgets.QHBoxLayout()
         footer_text = f"NukeCodeBridge {VERSION} | © {YEAR} {AUTHOR}"
         self.credit_label = QtWidgets.QLabel(footer_text)
         self.credit_label.setStyleSheet("color: #444; font-size: 9px;")
@@ -250,9 +242,32 @@ class NukeCodeBridgeUI(QtWidgets.QWidget):
         main_layout.addWidget(self.status_bar)
         main_layout.addWidget(self.credit_label)
 
-    # --- Methods ---
+    # --- Parented Dialogs (To prevent appearing behind "Always on Top" UI) ---
+
+    def show_message(self, title, message, icon=QtWidgets.QMessageBox.Information):
+        """Parented alternative to nuke.message."""
+        msg_box = QtWidgets.QMessageBox(self)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
+        msg_box.setIcon(icon)
+        msg_box.setWindowFlags(msg_box.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+        msg_box.exec_()
+
+    def ask_confirmation(self, title, message):
+        """Parented alternative to nuke.ask."""
+        msg_box = QtWidgets.QMessageBox(self)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
+        msg_box.setIcon(QtWidgets.QMessageBox.Question)
+        msg_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        msg_box.setDefaultButton(QtWidgets.QMessageBox.No)
+        msg_box.setWindowFlags(msg_box.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+        return msg_box.exec_() == QtWidgets.QMessageBox.Yes
+
+    # --- Logic ---
 
     def refresh_users(self):
+        """Scans the server path for user directories."""
         self.user_dropdown.blockSignals(True)
         self.user_dropdown.clear()
         if os.path.exists(SHARED_SERVER_PATH):
@@ -265,48 +280,62 @@ class NukeCodeBridgeUI(QtWidgets.QWidget):
         self.refresh_scripts()
 
     def refresh_scripts(self):
+        """Updates the list widget with files from the selected user folder."""
         self.list_widget.clear()
         selected_user = self.user_dropdown.currentText()
         user_path = os.path.join(SHARED_SERVER_PATH, selected_user)
-        
         count = 0
         if os.path.exists(user_path):
             files = [f for f in sorted(os.listdir(user_path)) if f.endswith(('.py', '.txt'))]
-            for f in files:
-                self.list_widget.addItem(f)
+            for f in files: self.list_widget.addItem(f)
             count = len(files)
-        
         self.status_bar.showMessage(f" Repository: {selected_user} | Count: {count}")
 
     def show_list_context_menu(self, pos):
+        """Right-click menu for the script list."""
         item = self.list_widget.itemAt(pos)
         if not item: return
-        menu = QtWidgets.QMenu()
+        menu = QtWidgets.QMenu(self)
         act_open = menu.addAction("Open File Location")
         act_del = menu.addAction("Delete Script")
         action = menu.exec_(self.list_widget.mapToGlobal(pos))
+        
         user_dir = os.path.join(SHARED_SERVER_PATH, self.user_dropdown.currentText())
         if action == act_open:
             if os.name == 'nt': os.startfile(user_dir)
             else: subprocess.call(['open', user_dir])
         elif action == act_del:
-            if nuke.ask(f"Permanently delete '{item.text()}'?"):
-                os.remove(os.path.join(user_dir, item.text()))
-                self.refresh_scripts()
+            if self.ask_confirmation("Delete Script", f"Permanently delete '{item.text()}'?"):
+                try:
+                    os.remove(os.path.join(user_dir, item.text()))
+                    self.refresh_scripts()
+                except Exception as e: 
+                    self.show_message("Delete Error", str(e), QtWidgets.QMessageBox.Critical)
+
+    def filter_scripts(self, text):
+        """Filters script list based on search bar input."""
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            item.setHidden(text.lower() not in item.text().lower())
 
     def clear_editor(self):
+        """Resets inputs for a fresh script."""
         self.name_input.clear()
         self.code_editor.setPlainText("")
-        self.status_bar.showMessage("New script initialized.", 3000)
+        self.status_bar.showMessage("New script ready.", 3000)
 
     def load_script(self, item):
+        """Reads script content with UTF-8 support (to handle emojis/symbols)."""
         path = os.path.join(SHARED_SERVER_PATH, self.user_dropdown.currentText(), item.text())
         try:
-            with open(path, 'r') as f: self.code_editor.setPlainText(f.read())
+            with open(path, 'r', encoding='utf-8') as f: 
+                self.code_editor.setPlainText(f.read())
             self.name_input.setText(item.text().replace('.py', ''))
-        except Exception as e: nuke.message(f"Error loading script:\n{e}")
+        except Exception as e: 
+            self.show_message("Load Error", str(e), QtWidgets.QMessageBox.Critical)
 
     def save_script(self):
+        """Writes current editor content to server using UTF-8 encoding."""
         name = self.name_input.text().strip()
         if not name: return
         if not name.endswith('.py'): name += '.py'
@@ -315,18 +344,26 @@ class NukeCodeBridgeUI(QtWidgets.QWidget):
         if not os.path.exists(user_dir): os.makedirs(user_dir)
         path = os.path.join(user_dir, name)
         try:
-            with open(path, 'w') as f: f.write(self.code_editor.toPlainText())
+            # Encoding set to utf-8 to prevent 'charmap' codec crashes
+            with open(path, 'w', encoding='utf-8') as f: 
+                f.write(self.code_editor.toPlainText())
             self.refresh_users()
             self.user_dropdown.setCurrentText(save_user)
             self.status_bar.showMessage(f"Saved to {save_user}", 4000)
-        except Exception as e: nuke.message(f"Error saving:\n{e}")
+        except Exception as e: 
+            self.show_message("Save Error", str(e), QtWidgets.QMessageBox.Critical)
 
     def run_script(self):
+        """Executes current editor text within Nuke's global context."""
         code = self.code_editor.toPlainText()
         if not code.strip(): return
-        if SHOW_RUN_CONFIRMATION and not nuke.ask("Execute code?"): return
-        try: exec(code, globals())
-        except Exception as e: nuke.message(f"Script Error:\n{e}")
+        if SHOW_RUN_CONFIRMATION:
+            if not self.ask_confirmation("Run Code", "Execute this code in Nuke?"):
+                return
+        try: 
+            exec(code, globals())
+        except Exception as e: 
+            self.show_message("Execution Error", str(e), QtWidgets.QMessageBox.Warning)
 
 # ============================
 # === LAUNCHER ===
