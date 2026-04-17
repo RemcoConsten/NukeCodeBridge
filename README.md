@@ -114,4 +114,4 @@ Open `nuke_code_bridge.py` in your preferred text editor and update the followin
 ---
 
 ## 🤝 Contributing
-Contributions are welcome! Feel free to submit Pull Requests or open Issues to suggest new features or report bugs.
+Contributions, discussions and ideas are welcome! Feel free to submit Pull Requests or open Issues to suggest new features or report bugs.
