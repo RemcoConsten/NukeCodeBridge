@@ -1,40 +1,41 @@
 # NukeCodeBridge
-**NukeCodeBridge v0.5 beta**
+**v0.5 beta | Network-Based Script Manager for Foundry Nuke**
 
-A simple tool that lets you save, organize, and run Python scripts directly inside Nuke using a shared network folder. No more copying scripts around — everyone in the studio can access the same tools easily.
+NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams. It allows artists to save, share, and execute Python snippets directly within Nuke via a centralized network location, eliminating the need to manually share `.py` files or copy-paste code through chat apps.
 
 ## ✨ Features
-* Save scripts to a shared location (one folder per user by default)
-* Built-in code editor with line numbers, syntax highlighting, and auto-indent
-* Run scripts directly from the editor
-* Search and right-click menu (Run, Rename, Delete, Copy path)
-* **Dev-Friendly:** Automatically reloads code changes without restarting Nuke
-* Works on Windows and Linux (Nuke 13+)
+* **Shared Repository:** Centralized storage for team-wide or personal scripts.
+* **Smart Editor:** Integrated editor with Python syntax highlighting, line numbers, and auto-indentation.
+* **User Isolation:** Supports both "Per-User" subfolders and "Single Shared" folder modes.
+* **Dev-Friendly:** Built-in module reloading—apply code changes instantly without restarting Nuke.
+* **Safety First:** Optional execution confirmation to prevent accidental script runs.
+* **Cross-Platform:** Compatible with Windows and Linux (Nuke 13.0+).
 
-## 🚀 Easy Installation
+---
 
-### Step 1: Prepare the folders
-1. Choose a **scripts folder** on the network where the `.py` files will live (e.g., `\\server\share\SharedNukeScripts`).
-2. Place the file **nuke_code_bridge.py** in your Nuke plugin path (e.g., `\\server\share\pipelinetools`).
+## 🚀 Installation
 
-### Step 2: Update init.py
-Add this to your `init.py`. It tells Nuke where to look for the tool. We use `print` instead of `nuke.message` to ensure render nodes don't hang if the path is missing.
+### 1. Deployment
+Place `nuke_code_bridge.py` into a shared studio directory or your local Nuke plugin path.
+
+### 2. Environment Setup (`init.py`)
+Add the directory containing the script to your Nuke plugin path. Add the following to your `init.py`:
 
 ```python
-import nuke
 import os
+import nuke
 
-# Path to the folder containing nuke_code_bridge.py
-BRIDGE_PATH = r"Y:\dev_remco\pipelinetools"
+# Replace with the path where you placed nuke_code_bridge.py
+TOOL_PATH = r"\\YOUR_SERVER\path\to\tool"
 
-if os.path.exists(BRIDGE_PATH):
-    nuke.pluginAddPath(BRIDGE_PATH)
+if os.path.exists(TOOL_PATH):
+    nuke.pluginAddPath(TOOL_PATH)
 else:
-    print(f"NukeCodeBridge path not found: {BRIDGE_PATH}")
+    print(f"[NukeCodeBridge] Warning: Tool path not found: {TOOL_PATH}")
 ```
 
-### Step 3: Update menu.py
-Add this to your `menu.py`. This version includes `importlib`, which allows you to update the tool's code and see changes immediately by just re-opening the window.
+### 3. Menu Integration (`menu.py`)
+Add the launcher command to your `menu.py`:
 
 ```python
 import nuke
@@ -48,34 +49,33 @@ def launch_bridge():
     except Exception as e:
         nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
 
-nuke.menu('Nuke').addCommand(
-    'Scripts/NukeCodeBridge', 
-    launch_bridge, 
-    tooltip='Open NukeCodeBridge - Network Script Manager'
-)
+nuke.menu('Nuke').addCommand('Scripts/NukeCodeBridge', launch_bridge)
 ```
 
-## ⚙️ How to Configure
-Configuration is handled at the top of **nuke_code_bridge.py**:
+---
 
-```python
-# 1. Set your studio network location (Where scripts are SAVED)
-BASE_SHARED_PATH = r"\\server\share\SharedNukeScripts"
+## ⚙️ Configuration
+Configuration is handled via variables at the top of `nuke_code_bridge.py`:
 
-# 2. Safety Toggle
-SHOW_RUN_CONFIRMATION = True
+| Variable | Description |
+| :--- | :--- |
+| `BASE_SHARED_PATH` | The network location where all scripts will be stored. |
+| `SHOW_RUN_CONFIRMATION` | Toggle the "Are you sure?" popup before execution. |
+| `USE_SINGLE_SHARED_FOLDER` | If `False`, users get private subfolders. If `True`, everyone shares one folder. |
 
-# 3. Folder Mode
-# False: Users get private folders (UserA, UserB)
-# True: Everyone saves to one "Shared" folder
-USE_SINGLE_SHARED_FOLDER = False
-```
+---
 
-## Requirements
-* Nuke 13 or newer (Supports PySide2 and PySide6)
-* Read/write access to the network scripts folder
+## 🛠 Requirements
+* **Foundry Nuke:** 13.0 or newer.
+* **Python:** 3.7+ (Standard with Nuke 13+).
+* **Permissions:** Read/Write access to the `BASE_SHARED_PATH`.
 
-## Notes & Security
-* **Singleton UI:** The updated script now prevents multiple windows from opening simultaneously.
-* **Security:** Only run code from trusted sources. A confirmation popup is enabled by default.
-* **Troubleshooting:** If the menu fails, check the Nuke terminal for "path not found" errors during startup.
+## 🔒 Security & Usage
+* **Trust:** Only execute scripts from trusted team members.
+* **Permissions:** Ensure the shared network directory has the correct Read/Write permissions for your user group.
+* **Beta Software:** This tool is currently in beta. Always back up critical scripts.
+
+---
+
+## 🤝 Contributing
+Contributions are welcome! Feel free to submit Pull Requests or open Issues to suggest new features or report bugs.
