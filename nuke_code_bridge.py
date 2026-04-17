@@ -11,20 +11,27 @@ import re
 BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"   # ← Change this!
 
 # === SAFETY SETTINGS ===
-# Set this to True (recommended) to show a confirmation popup before running any code.
+# Set to True (recommended) to show a confirmation popup before running any code.
 SHOW_RUN_CONFIRMATION = True
 
-# === PER-USER FOLDERS (DEFAULT) ===
-SHARED_SERVER_PATH = BASE_SHARED_PATH
+# === FOLDER MODE ===
+# Set to True to use one common folder for all users (no per-user subfolders)
+USE_SINGLE_SHARED_FOLDER = False
 
-# Safe current user detection
-try:
-    CURRENT_USER = getpass.getuser()
-except Exception:
-    CURRENT_USER = (os.environ.get("USER") or 
-                    os.environ.get("USERNAME") or 
-                    os.environ.get("LOGNAME") or 
-                    "default_user")
+# === PER-USER FOLDERS (DEFAULT) ===
+if USE_SINGLE_SHARED_FOLDER:
+    SHARED_SERVER_PATH = os.path.join(BASE_SHARED_PATH, "Shared")
+    CURRENT_USER = "Shared"
+else:
+    SHARED_SERVER_PATH = BASE_SHARED_PATH
+    # Safe current user detection
+    try:
+        CURRENT_USER = getpass.getuser()
+    except Exception:
+        CURRENT_USER = (os.environ.get("USER") or 
+                        os.environ.get("USERNAME") or 
+                        os.environ.get("LOGNAME") or 
+                        "default_user")
 
 
 # --- PySide Compatibility (Nuke 13 vs 14/15+) ---
@@ -228,7 +235,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         self.refresh_btn = QtWidgets.QPushButton("Refresh All")
         self.refresh_btn.clicked.connect(self.refresh_users)
 
-        left_layout.addWidget(QtWidgets.QLabel("Select User:"))
+        left_layout.addWidget(QtWidgets.QLabel("Select User:" if not USE_SINGLE_SHARED_FOLDER else "Shared Folder:"))
         left_layout.addWidget(self.user_dropdown)
         left_layout.addWidget(self.search_bar)
         left_layout.addWidget(self.list_widget)
@@ -251,7 +258,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         self.highlighter = PythonHighlighter(self.code_editor.document()) 
         
         btn_layout = QtWidgets.QHBoxLayout()
-        self.save_btn = QtWidgets.QPushButton("Save to Current User")
+        self.save_btn = QtWidgets.QPushButton("Save to Current User" if not USE_SINGLE_SHARED_FOLDER else "Save Script")
         self.save_btn.clicked.connect(self.save_script)
         
         self.run_btn = QtWidgets.QPushButton("Run Code")
@@ -331,11 +338,15 @@ class NukeCodeBridge(QtWidgets.QWidget):
             elif action == run_action:
                 self.run_from_server(item)
 
-    # --- RENAME, COPY, DELETE, RUN FROM SERVER ---
+    # --- FILE OPERATIONS ---
     def rename_script(self, item):
-        selected_user = self.user_dropdown.currentText()
+        if USE_SINGLE_SHARED_FOLDER:
+            selected_user = "Shared"
+        else:
+            selected_user = self.user_dropdown.currentText()
+            
         old_filename = item.text()
-        old_filepath = os.path.join(SHARED_SERVER_PATH, selected_user, old_filename)
+        old_filepath = os.path.join(SHARED_SERVER_PATH, selected_user if not USE_SINGLE_SHARED_FOLDER else "", old_filename)
         
         new_name, ok = QtWidgets.QInputDialog.getText(self, "Rename Script", 
                                                       "Enter new name:", text=old_filename.rsplit('.', 1)[0])
@@ -343,7 +354,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if ok and new_name.strip():
             if not new_name.endswith(('.py', '.txt')):
                 new_name += '.py'
-            new_filepath = os.path.join(SHARED_SERVER_PATH, selected_user, new_name)
+            new_filepath = os.path.join(SHARED_SERVER_PATH, selected_user if not USE_SINGLE_SHARED_FOLDER else "", new_name)
             
             if os.path.exists(new_filepath):
                 self.show_popup("Rename Error", f"A script named '{new_name}' already exists.", is_error=True)
@@ -359,14 +370,20 @@ class NukeCodeBridge(QtWidgets.QWidget):
                 self.show_popup("Rename Error", f"Failed to rename:\n{str(e)}", is_error=True)
 
     def copy_path(self, item):
-        selected_user = self.user_dropdown.currentText()
-        filepath = os.path.join(SHARED_SERVER_PATH, selected_user, item.text())
+        if USE_SINGLE_SHARED_FOLDER:
+            filepath = os.path.join(SHARED_SERVER_PATH, item.text())
+        else:
+            selected_user = self.user_dropdown.currentText()
+            filepath = os.path.join(SHARED_SERVER_PATH, selected_user, item.text())
         QtWidgets.QApplication.clipboard().setText(filepath)
         self.show_popup("Copied", f"Path copied to clipboard:\n\n{filepath}")
 
     def delete_script(self, item):
-        selected_user = self.user_dropdown.currentText()
-        filepath = os.path.join(SHARED_SERVER_PATH, selected_user, item.text())
+        if USE_SINGLE_SHARED_FOLDER:
+            filepath = os.path.join(SHARED_SERVER_PATH, item.text())
+        else:
+            selected_user = self.user_dropdown.currentText()
+            filepath = os.path.join(SHARED_SERVER_PATH, selected_user, item.text())
         
         reply = QtWidgets.QMessageBox.question(
             self, 'Confirm Delete', 
@@ -388,8 +405,12 @@ class NukeCodeBridge(QtWidgets.QWidget):
                 self.show_popup("Delete Error", f"Error deleting script:\n{str(e)}", is_error=True)
 
     def run_from_server(self, item):
-        selected_user = self.user_dropdown.currentText()
-        filepath = os.path.join(SHARED_SERVER_PATH, selected_user, item.text())
+        if USE_SINGLE_SHARED_FOLDER:
+            filepath = os.path.join(SHARED_SERVER_PATH, item.text())
+        else:
+            selected_user = self.user_dropdown.currentText()
+            filepath = os.path.join(SHARED_SERVER_PATH, selected_user, item.text())
+            
         if os.path.exists(filepath):
             with open(filepath, 'r') as f:
                 code = f.read()
@@ -408,41 +429,49 @@ class NukeCodeBridge(QtWidgets.QWidget):
             except Exception as e:
                 self.show_popup("Script Error", f"Error running script:\n{str(e)}", is_error=True)
 
-    # --- REFRESH, LOAD, SAVE, RUN ---
+    # --- REFRESH & UI HELPERS ---
     def refresh_users(self):
         self.user_dropdown.blockSignals(True)
         self.user_dropdown.clear()
         
-        if os.path.exists(SHARED_SERVER_PATH):
-            users = [d for d in os.listdir(SHARED_SERVER_PATH) 
-                     if os.path.isdir(os.path.join(SHARED_SERVER_PATH, d))]
-            
-            if self.current_user not in users:
-                users.append(self.current_user)
-            
-            users.sort()
-            self.user_dropdown.addItems(users)
-            
-            if self.current_user in users:
-                index = self.user_dropdown.findText(self.current_user)
-                self.user_dropdown.setCurrentIndex(index)
+        if USE_SINGLE_SHARED_FOLDER:
+            self.user_dropdown.addItem("Shared")
+            self.user_dropdown.setCurrentIndex(0)
+        else:
+            if os.path.exists(SHARED_SERVER_PATH):
+                users = [d for d in os.listdir(SHARED_SERVER_PATH) 
+                         if os.path.isdir(os.path.join(SHARED_SERVER_PATH, d))]
+                
+                if self.current_user not in users:
+                    users.append(self.current_user)
+                
+                users.sort()
+                self.user_dropdown.addItems(users)
+                
+                if self.current_user in users:
+                    index = self.user_dropdown.findText(self.current_user)
+                    self.user_dropdown.setCurrentIndex(index)
                 
         self.user_dropdown.blockSignals(False)
         self.refresh_scripts()
 
     def refresh_scripts(self):
         self.list_widget.clear()
-        selected_user = self.user_dropdown.currentText()
-        user_dir = os.path.join(SHARED_SERVER_PATH, selected_user)
         
-        if not os.path.exists(user_dir):
+        if USE_SINGLE_SHARED_FOLDER:
+            folder_to_list = SHARED_SERVER_PATH
+        else:
+            selected_user = self.user_dropdown.currentText()
+            folder_to_list = os.path.join(SHARED_SERVER_PATH, selected_user)
+        
+        if not os.path.exists(folder_to_list):
             try:
-                os.makedirs(user_dir)
+                os.makedirs(folder_to_list)
             except Exception:
                 pass
                 
-        if os.path.exists(user_dir):
-            for f in sorted(os.listdir(user_dir)):
+        if os.path.exists(folder_to_list):
+            for f in sorted(os.listdir(folder_to_list)):
                 if f.endswith(('.py', '.txt')):
                     self.list_widget.addItem(f)
                     
@@ -452,7 +481,11 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if not self.check_unsaved_changes():
             return
             
-        selected_user = self.user_dropdown.currentText()
+        if USE_SINGLE_SHARED_FOLDER:
+            selected_user = ""
+        else:
+            selected_user = self.user_dropdown.currentText()
+            
         filename = item.text()
         self.name_input.setText(filename.rsplit('.', 1)[0])
         filepath = os.path.join(SHARED_SERVER_PATH, selected_user, filename)
@@ -468,7 +501,11 @@ class NukeCodeBridge(QtWidgets.QWidget):
             self.setWindowTitle("NukeCodeBridge v0.5 beta")
 
     def save_script(self):
-        selected_user = self.user_dropdown.currentText()
+        if USE_SINGLE_SHARED_FOLDER:
+            selected_user = ""
+        else:
+            selected_user = self.user_dropdown.currentText()
+            
         name = self.name_input.text().strip()
         
         if not name:
@@ -478,11 +515,11 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if not name.endswith(('.py', '.txt')):
             name += '.py'
             
-        user_dir = os.path.join(SHARED_SERVER_PATH, selected_user)
-        if not os.path.exists(user_dir):
-            os.makedirs(user_dir)
+        save_dir = os.path.join(SHARED_SERVER_PATH, selected_user)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
             
-        filepath = os.path.join(user_dir, name)
+        filepath = os.path.join(save_dir, name)
         
         if os.path.exists(filepath) and filepath != self.currently_loaded_path:
             reply = QtWidgets.QMessageBox.question(
@@ -503,34 +540,9 @@ class NukeCodeBridge(QtWidgets.QWidget):
             self.currently_loaded_path = filepath
             self.setWindowTitle("NukeCodeBridge v0.5 beta")
             
-            self.show_popup("Success", f"Saved: {name}\nUnder user: '{selected_user}'")
+            self.show_popup("Success", f"Saved: {name}" + (f"\nUnder user: '{selected_user}'" if not USE_SINGLE_SHARED_FOLDER else ""))
         except Exception as e:
             self.show_popup("Save Error", f"Error saving script:\n{str(e)}", is_error=True)
-
-    def run_script(self):
-        cursor = self.code_editor.textCursor()
-        if cursor.hasSelection():
-            code = cursor.selectedText().replace('\u2029', '\n')
-        else:
-            code = self.code_editor.toPlainText()
-            
-        if not code.strip():
-            self.show_popup("Empty Script", "No code to run.", is_error=True)
-            return
-
-        if SHOW_RUN_CONFIRMATION:
-            reply = QtWidgets.QMessageBox.question(
-                self, 'Confirm Execution', 
-                "Run this code?\n\nOnly run scripts from people you trust.",
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, 
-                QtWidgets.QMessageBox.No)
-            if reply == QtWidgets.QMessageBox.No:
-                return
-            
-        try:
-            exec(code, globals())
-        except Exception as e:
-            self.show_popup("Script Error", f"Error running script:\n{str(e)}", is_error=True)
 
 
 # ============================
