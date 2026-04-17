@@ -3,7 +3,7 @@
 
 NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams. It allows artists to save, share, and execute Python snippets directly within Nuke via a centralized network location, eliminating the need to manually share `.py` files or copy-paste code through chat apps.
 
-<img width="1102" height="761" alt="image" src="https://github.com/user-attachments/assets/bbf6d4ab-60d0-41ea-a6cf-315566b06fe1" />
+<img width="551" height="380" alt="image" src="https://github.com/user-attachments/assets/bbf6d4ab-60d0-41ea-a6cf-315566b06fe1" />
 
 
 ## ✨ Features
