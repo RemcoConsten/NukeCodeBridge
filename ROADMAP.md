@@ -4,9 +4,7 @@ Here’s a prioritized list of potential improvements for **NukeCodeBridge**:
 
 ### High Priority (Next Updates)
 - Support for more file types beyond `.py` and `.txt` (e.g. `.nk`, `.gizmo`, `.pyi`, `.json`, `.yaml`, `.md`)
-- "Open Folder" button or context menu action to quickly open the current user’s folder in Explorer/Finder
 - Improve confirmation popup messages for better clarity
-- Add a simple status bar at the bottom showing current user and file count
 
 ### Medium Priority
 - **Read-only mode** for official/studio files (prevent accidental editing)
