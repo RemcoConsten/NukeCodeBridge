@@ -101,7 +101,7 @@ Open `nuke_code_bridge.py` in your preferred text editor and update the followin
 ---
 
 ## 🛠 Requirements
-* **Foundry Nuke:** 13.0 or newer.
+* **Foundry Nuke:** 13.0 or newer. (tested on nuke 15) 
 * **Python:** 3.7+ (Standard with Nuke 13+).
 * **Permissions:** Read/Write access to the `BASE_SHARED_PATH`.
 
