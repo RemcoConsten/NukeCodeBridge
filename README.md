@@ -5,11 +5,9 @@ NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams
 
 <img width="551" height="380" alt="image" src="https://github.com/user-attachments/assets/bbf6d4ab-60d0-41ea-a6cf-315566b06fe1" />
 
+---
 
 ## ✨ Features
-Understood. I have stripped out the icons and the "pro" marketing language to keep the feature list clean, direct, and professional.
-
-### Features
 
 **Script Management**
 * **Multi-User Repositories:** Access and load scripts from various user directories across the network.
