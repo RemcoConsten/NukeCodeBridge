@@ -11,7 +11,7 @@ NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams
 
 ​This tool was an experiment to see if I could use AI as a Technical Assistant to bring a creative idea to life. And yes, I also used AI to helped me write this Readme to save time. Some of you might find that lazy. lm starting to find it a way to spend my precious time one something else.
 
-* **The "Director" Workflow:** Instead of writing every line of code from scratch, I acted more like a director.
+* **The Director Workflow:** Instead of writing every line of code from scratch, I acted more like a director.
 ​The Concept: I knew I wanted a way to share Nuke code snippets quickly across the studio without digging through folders.
 
 * **​The AI Collaboration:** I used AI to do the "heavy lifting" of building the interface. I described how I wanted UI to react and how the list should behave, and the AI provided the building blocks.
