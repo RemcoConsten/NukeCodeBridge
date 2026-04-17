@@ -54,14 +54,31 @@ nuke.menu('Nuke').addCommand('Scripts/NukeCodeBridge', launch_bridge)
 
 ---
 
-## ⚙️ Configuration
-Configuration is handled via variables at the top of `nuke_code_bridge.py`:
+### ⚠️ Pre-launch Configuration
+Before attempting to run the bridge, you **must** configure the script settings. Without defining your network paths, the bridge will fail to initialize.
+
+Open `nuke_code_bridge.py` in your preferred text editor and update the following variables at the top of the file:
 
 | Variable | Description |
 | :--- | :--- |
-| `BASE_SHARED_PATH` | The network location where all scripts will be stored. |
-| `SHOW_RUN_CONFIRMATION` | Toggle the "Are you sure?" popup before execution. |
-| `USE_SINGLE_SHARED_FOLDER` | If `False`, users get private subfolders. If `True`, everyone shares one folder. |
+| **`BASE_SHARED_PATH`** | The absolute network path where scripts that you would like to share with everyone are stored. Ensure all users have read/write permissions here. |
+| **`SHOW_RUN_CONFIRMATION`** | Set to `True` to show an "Are you sure?" popup before execution; `False` for instant execution. |
+| **`USE_SINGLE_SHARED_FOLDER`** | If `False`, users get private subfolders based on their username. If `True`, all users share a global folder. |
+
+---
+
+### Implementation Pro-Tip
+To make this even more user-friendly, you might consider adding a simple check at the start of your `main()` function:
+
+```python
+if BASE_SHARED_PATH == "/path/to/your/network/share":
+    nuke.critical("Bridge Error: Please configure BASE_SHARED_PATH in nuke_code_bridge.py")
+    return
+```
+
+This prevents the script from silently failing and gives the user a clear nudge to go back to the config. 
+
+Does this flow better with the rest of your documentation, or should we add a "Quick Start" checklist at the very top?
 
 ---
 
