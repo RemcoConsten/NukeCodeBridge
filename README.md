@@ -106,7 +106,8 @@ Open `nuke_code_bridge.py` in your preferred text editor and update the followin
 * **Permissions:** Read/Write access to the `BASE_SHARED_PATH`.
 
 ## 🔒 Security & Usage
-* **Trust:** Only execute scripts from trusted team members.
+* **Trust:** Only execute scripts from trusted team members. This could execute scripts that might break something similar to what can happen within the Nuke script editor.
+*  **Caution** This tool uses Python's exec() function. Just like the native Nuke Script Editor, executing unverified code can lead to data loss, software crashes, or unintended system changes.
 * **Permissions:** Ensure the shared network directory has the correct Read/Write permissions for your user group.
 * **Beta Software:** This tool is currently in beta. Always back up critical scripts.
 
