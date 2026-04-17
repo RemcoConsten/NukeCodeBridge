@@ -108,7 +108,17 @@ Before running the bridge, you **must** configure the script settings. Open nuke
  * **Permissions:** Ensure the shared network directory has the correct Read/Write permissions for your user group.
  * **Beta Software:** This tool is currently in beta. Always back up critical scripts.
 ## 🤝 Contributing
-Contributions, discussions, and ideas are welcome! Feel free to submit **Pull Requests** or open **Issues** to suggest new features or report bugs—especially if you are testing on Linux or macOS!
+Contributions, discussions, and ideas are welcome! Feel free to submit **Pull Requests** or open **Issues** to suggest new features or report bugs. Especially if you are testing on Linux or macOS!
+
+## 🗺️ Roadmap at a Glance
+We are currently in **Phase 1 (Stability)**. Key upcoming milestones:
+
+- [ ] **Safety First:** Automatic `.bak` backups and Namespace Isolation.
+- [ ] **Organization:** Tagging system and Studio "Read-Only" protection.
+- [ ] **Insights:** Integrated console for Python tracebacks and Deep Search.
+
+> 📂 **View the full technical roadmap [here](./ROADMAP.md)**
+
 ### 👨‍💻 Created by Remco Consten
 *VFX Artist & Pipeline Enthusiast*
 [🔗 LinkedIn](https://www.linkedin.com/in/remco-consten-18449626)
