@@ -9,7 +9,7 @@ NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams
 
 * **How I Built This: From an Artists Perspective:** ​I am an artist, not a fulltime developer. Like many people in production, I often have ideas for tools that could make our lives easier, and while I know how to move around within python, I ofter hit that coding wall.
 
-​This tool was an experiment to see if I could use AI as a "Technical Assistant" to bring a creative idea to life. And yes, I also used AI to helped me write this Readme to save time. Some of you might find that lazy. lm starting to find it a way to spend my precious time one something else.
+​This tool was an experiment to see if I could use AI as a Technical Assistant to bring a creative idea to life. And yes, I also used AI to helped me write this Readme to save time. Some of you might find that lazy. lm starting to find it a way to spend my precious time one something else.
 
 * **The "Director" Workflow:** Instead of writing every line of code from scratch, I acted more like a director.
 ​The Concept: I knew I wanted a way to share Nuke code snippets quickly across the studio without digging through folders.
@@ -43,7 +43,7 @@ NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams
 * **Adjustable Layout:** Integrated splitter allowing users to resize the browser and editor panels.
 * **Multi-Version Support:** Compatible with both PySide2 and PySide6 for different Nuke versions.
 * **Execution Safety:** Optional confirmation toggle before running code in the global context.
-* ** tested on windows, but it should be compatible with Linux as well. Let me know if something is not working. 
+* ** tested on windows** I tested the tool on Windows, but it should be compatible with Linux as well. 
 ---
 
 ## 🚀 Installation
