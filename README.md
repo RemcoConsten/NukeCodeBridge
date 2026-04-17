@@ -1,6 +1,4 @@
 # NukeCodeBridge
-
-# NukeCodeBridge
 ![Version](https://img.shields.io/badge/version-v0.9--beta-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![OS-Windows](https://img.shields.io/badge/Windows-Tested-green)
