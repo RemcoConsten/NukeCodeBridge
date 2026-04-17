@@ -7,7 +7,7 @@ NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams
 
 ---
 
-* **How I Built This: From an Artists Perspective:** ​I am an artist, not a fulltime developer. Like many people in production, I often have ideas for tools that could make our lives easier, and while I know how to move around within python, I ofter hit that coding wall.
+* **How I Built This With The Help Of AI: From an Artists Perspective:** ​I am an artist, not a fulltime developer. Like many people in production, I often have ideas for tools that could make our lives easier, and while I know how to move around within python, I ofter hit that coding wall.
 
 ​This tool was an experiment to see if I could use AI as a Technical Assistant to bring a creative idea to life. And yes, I also used AI to helped me write this Readme to save time. Some of you might find that lazy. lm starting to find it a way to spend my precious time one something else.
 
