@@ -1,4 +1,13 @@
 # NukeCodeBridge
+
+# NukeCodeBridge
+![Version](https://img.shields.io/badge/version-v0.9--beta-orange)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![OS-Windows](https://img.shields.io/badge/Windows-Tested-green)
+![OS-macOS](https://img.shields.io/badge/macOS-Experimental-yellow)
+![OS-Linux](https://img.shields.io/badge/Linux-Experimental-yellow)
+![Nuke](https://img.shields.io/badge/Nuke-13.0+-green)
+
 **v0.9 beta | Network-Based Script Manager for Foundry Nuke**
 
 NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams or solo artists. It allows artists to save, share, and execute Python snippets directly within Nuke via a centralized network location, eliminating the need to manually share `.py` files or copy-paste code through chat apps.
