@@ -67,21 +67,6 @@ Open `nuke_code_bridge.py` in your preferred text editor and update the followin
 
 ---
 
-### Implementation Pro-Tip
-To make this even more user-friendly, you might consider adding a simple check at the start of your `main()` function:
-
-```python
-if BASE_SHARED_PATH == "/path/to/your/network/share":
-    nuke.critical("Bridge Error: Please configure BASE_SHARED_PATH in nuke_code_bridge.py")
-    return
-```
-
-This prevents the script from silently failing and gives the user a clear nudge to go back to the config. 
-
-Does this flow better with the rest of your documentation, or should we add a "Quick Start" checklist at the very top?
-
----
-
 ## 🛠 Requirements
 * **Foundry Nuke:** 13.0 or newer.
 * **Python:** 3.7+ (Standard with Nuke 13+).
