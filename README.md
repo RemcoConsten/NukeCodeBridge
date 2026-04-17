@@ -7,12 +7,29 @@ NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams
 
 
 ## ✨ Features
-* **Shared Repository:** Centralized storage for team-wide or personal scripts.
-* **Smart Editor:** Integrated editor with Python syntax highlighting, line numbers, and auto-indentation.
-* **User Isolation:** Supports both "Per-User" subfolders and "Single Shared" folder modes.
-* **Dev-Friendly:** Built-in module reloading—apply code changes instantly without restarting Nuke.
-* **Safety First:** Optional execution confirmation to prevent accidental script runs.
-* **Cross-Platform:** Compatible with Windows and Linux (Nuke 13.0+).
+Understood. I have stripped out the icons and the "pro" marketing language to keep the feature list clean, direct, and professional.
+
+### Features
+
+**Script Management**
+* **Multi-User Repositories:** Access and load scripts from various user directories across the network.
+* **Search and Filter:** Real-time text filtering to locate specific scripts within the active folder.
+* **Context Menu:** Right-click functionality to open the file location in the operating system or delete scripts with a confirmation prompt.
+* **Status Bar:** Bottom-aligned interface showing the current repository name and total file count.
+
+**Editor Interface**
+* **Line Numbering:** Dedicated margin displaying current line counts.
+* **Syntax Highlighting:** Color-coded recognition for Python keywords, strings, and comments.
+* **Active Line Tracking:** Visual highlighting of the line currently containing the cursor.
+* **UTF-8 Support:** Full encoding support for Unicode characters, preventing save/load errors with special symbols.
+* **Monospaced Typography:** Fixed-pitch font selection to ensure accurate indentation and alignment.
+
+**Integration and Stability**
+* **Stay-on-Top Behavior:** Window flags set to keep the tool visible over the Nuke interface.
+* **Parented Dialogs:** Custom logic ensuring confirmation and error messages appear in front of the main UI.
+* **Adjustable Layout:** Integrated splitter allowing users to resize the browser and editor panels.
+* **Multi-Version Support:** Compatible with both PySide2 and PySide6 for different Nuke versions.
+* **Execution Safety:** Optional confirmation toggle before running code in the global context.
 
 ---
 
