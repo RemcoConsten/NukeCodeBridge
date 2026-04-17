@@ -43,7 +43,7 @@ NukeCodeBridge is a lightweight pipeline tool designed for VFX studios and teams
 * **Adjustable Layout:** Integrated splitter allowing users to resize the browser and editor panels.
 * **Multi-Version Support:** Compatible with both PySide2 and PySide6 for different Nuke versions.
 * **Execution Safety:** Optional confirmation toggle before running code in the global context.
-* ** tested on windows** I tested the tool on Windows, but it should be compatible with Linux as well. 
+* **tested on windows** I tested the tool on Windows, but it should be compatible with Linux as well. Unfortunately I'm not able to test this right now. 
 ---
 
 ## 🚀 Installation
