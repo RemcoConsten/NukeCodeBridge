@@ -125,7 +125,8 @@ Contributions, discussions and ideas are welcome! Feel free to submit Pull Reque
 
 ---
 
+---
 ### 👨‍💻 Created by Remco Consten
-*VFX Artist & Pipeline Enthusiast*---
+*VFX Artist & Pipeline Enthusiast*
 
-[🔗 LinkedIn] (https://nl.linkedin.com/in/remco-consten-18449626&ved=2ahUKEwja_LOC9fWTAxW32gIHHdEAHKMQFnoECBoQAQ&usg=AOvVaw2ToeYLqTqA3Yd9z1TBSc-d) 
+[🔗 LinkedIn](https://www.linkedin.com/in/remco-consten-18449626)
