@@ -121,7 +121,7 @@ This tool was an experiment to see if I could use AI as a technical assistant to
 At the top of `nuke_code_bridge.py`:
 
 ```
-BASE_SHARED_PATH = r"Y:\\dev_remco\\SharedNukeScripts"
+BASE_SHARED_PATH = r"X:\\your_shared_folder\SharedNukeScripts"
 SHOW_RUN_CONFIRMATION = True
 USE_SINGLE_SHARED_FOLDER = False
 
