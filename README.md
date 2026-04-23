@@ -172,11 +172,6 @@ BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
 
 ---
 
-## 🖼 Screenshots (placeholders)
-
-
----
-
 ## 🗺 Roadmap (Updated)
 
 ### Completed
