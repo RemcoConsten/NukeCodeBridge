@@ -151,7 +151,7 @@ nuke.menu("Nuke").addCommand(
 3. Configure your repository path:
 
 ```
-BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
+BASE_SHARED_PATH = r"X:\\your_shared_folder\SharedNukeScripts"
 ```
 ---
 
