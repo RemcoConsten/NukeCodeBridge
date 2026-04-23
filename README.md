@@ -1,5 +1,6 @@
 # NukeCodeBridge
-![Version](https://img.shields.io/badge/version-v0.9--beta-orange)
+
+![Version](https://img.shields.io/badge/version-v0.12-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![OS-Windows](https://img.shields.io/badge/Windows-Tested-green)
 ![OS-macOS](https://img.shields.io/badge/macOS-Experimental-yellow)
@@ -8,117 +9,228 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 ![Stars](https://img.shields.io/github/stars/RemcoConsten/NukeCodeBridge?style=social)
 
-**v0.9 beta | Network-Based Script Manager for Foundry Nuke**
+**Network-Based Script Manager & Python Editor for Foundry Nuke**
 
-NukeCodeBridge is a lightweight pipeline tool designed for VFX studios, teams, or solo artists. It allows artists to save, share, and execute Python snippets directly within Nuke via a centralized network location, eliminating the need to manually share `.py` files or copy-paste code through chat apps.
-
-<img width="551" height="380" alt="NukeCodeBridge UI" src="https://github.com/user-attachments/assets/bbf6d4ab-60d0-41ea-a6cf-315566b06fe1" />
-
----
-
-### 💡 How I Built This: An Artist’s Perspective
-I am an artist, not a full-time developer. Like many people in production, I often have ideas for tools that could make our lives easier, and while I know how to move around within Python, I often hit that coding wall.
-
-This tool was an experiment to see if I could use AI as a technical assistant to bring a creative idea to life. And yes, I also used AI to help me write this README to save time. Some of you might find that lazy; I’m starting to find it a way to spend my precious time on something else.
-
-* **The Director Workflow:** Instead of writing every line of code from scratch, I acted more like a director. 
-* **The Concept:** I knew I wanted a way to share Nuke code snippets quickly across the studio without digging through folders.
-* **The AI Collaboration:** I used AI to do the heavy lifting of building the interface. I described how I wanted the UI to react and how the list should behave, and the AI provided the building blocks.
-* **Problem Solving:** When things broke, I worked with the AI to troubleshoot, testing different versions until it worked perfectly inside the Nuke environment.
-* **Why I’m Sharing This:** I wanted to be open about using AI because I think it’s a game-changer for artists. It allows those of us who speak VFX but maybe do not speak Python fluently to build professional-grade tools.
+NukeCodeBridge is a lightweight, production‑oriented tool for VFX studios, teams, and solo artists.  
+It allows you to **store, edit, run, and share Python scripts directly inside Nuke** using a shared network repository — no more Slack‑shared `.py` files or digging through old scripts.
 
 ---
 
-## ✨ Features
+## 🚀 What’s New Since v0.9
 
-**Script Management**
-* **Multi-User Repositories:** Access and load scripts from various user directories across the network.
-* **Search and Filter:** Real-time text filtering to locate specific scripts within the active folder.
-* **Context Menu:** Right-click functionality to open the file location in the OS or delete scripts with a confirmation prompt.
-* **Status Bar:** Bottom-aligned interface showing the current repository name and total file count.
+### **v0.12**
+- Full **VS Code Dark+ themed editor**
+- **Multi‑tab editing** (open multiple scripts at once)
+- **Line numbers** with custom gutter
+- **Current line highlight**
+- **Word‑occurrence highlighting**
+- **Zoom system**  
+  - Ctrl + Mouse Wheel  
+  - Ctrl + `+` / `-`  
+  - Ctrl + `0` reset
+- **Indent/unindent** (Tab / Shift+Tab)
+- Multi‑line indentation support
+- Improved **syntax highlighting**
+- **Status light** (idle / running / success / error)
+- Dark‑themed **console output panel**
+- Safer, clearer **save** and **backup** behavior
+- Cleaner, more modern UI layout
 
-**Editor Interface**
-* **Line Numbering:** Dedicated margin displaying current line counts.
-* **Syntax Highlighting:** Color-coded recognition for Python keywords, strings, and comments.
-* **Active Line Tracking:** Visual highlighting of the line currently containing the cursor.
-* **UTF-8 Support:** Full encoding support for Unicode characters.
-* **Monospaced Typography:** Fixed-pitch font selection to ensure accurate indentation.
+### **v0.11**
+- Modular refactor (core, editor, UI, execution)
+- Initial multi‑tab structure
+- Improved network repository handling
+- Basic save + backup system
+- Console redirection via StreamRedirector
+- Persistent execution namespace
 
-**Integration and Stability**
-* **Stay-on-Top Behavior:** Window flags set to keep the tool visible over the Nuke interface.
-* **Parented Dialogs:** Ensures confirmation and error messages appear in front of the main UI.
-* **Adjustable Layout:** Integrated splitter allowing users to resize the browser and editor panels.
-* **Multi-Version Support:** Compatible with both PySide2 and PySide6.
-* **Tested on Windows:** I tested the tool on Windows, but it is built to be compatible with Linux and macOS as well (Experimental).
+### **v0.9**
+- First public beta
+- Single‑tab editor
+- Basic network script loading
+- Basic execution inside Nuke
 
 ---
 
-## 🚀 Installation
+## ✨ Features (v0.12)
 
-### 1. Deployment
-Place `nuke_code_bridge.py` into a shared studio directory or your local Nuke plugin path.
+### 📁 Network-Based Repository
+- Central shared folder for all scripts
+- Optional **per‑user subfolders** or **single shared folder**
+- Auto‑creates missing directories
+- Script list updates dynamically
 
-### 2. Environment Setup (`init.py`)
-Add the directory containing the script to your Nuke plugin path:
+### 📝 Multi‑Tab Python Editor
+- Unlimited tabs
+- “Untitled” tab on startup
+- Each tab tracks its own file path
+- Tabs are closable
 
-```python
-import os
-import nuke
+### 🎨 VS Code‑Style Editing
+- Dark+ theme
+- Line numbers
+- Current line highlight
+- Word‑occurrence highlight
+- Syntax highlighting (keywords, strings, comments)
+- No line wrapping
+- Undo/redo
 
-# Replace with the path where you placed nuke_code_bridge.py
-TOOL_PATH = r"\\YOUR_SERVER\path\to\tool"
+### 🔧 Smart Editing Tools
+- 4‑space indentation
+- Multi‑line indent/unindent
+- Shift+Tab unindent
+- Zoom controls:
+  - Ctrl + Mouse Wheel
+  - Ctrl + `+` / `-`
+  - Ctrl + `0` reset
 
-if os.path.exists(TOOL_PATH):
-    nuke.pluginAddPath(TOOL_PATH)
-else:
-    print(f"[NukeCodeBridge] Warning: Tool path not found: {TOOL_PATH}")
+### ▶️ Execution Engine
+- Executes code in a **persistent namespace**
+- Automatically injects `nuke` module (if available)
+- Captures:
+  - print() output
+  - Errors
+  - Tracebacks
+- Status light:
+  - Grey = idle  
+  - Yellow = running  
+  - Green = success  
+  - Red = error  
+
+### 🖥 Console Output Panel
+- Read‑only
+- Dark theme
+- Auto‑scroll
+- Shows:
+  - Execution logs
+  - Tracebacks
+  - Save messages
+
+### 💾 Saving & Backup System
+- Save / Save As
+- Ensures newline at end of file
+- UTF‑8 encoding
+- Optional backups (ENABLE_BACKUPS)
+- Timestamped `.bak` files in `_backups` folder
+
+### 📚 Script List Sidebar
+- Lists all `.py` files in the repository
+- Double‑click to open
+- Supports per‑user or shared mode
+
+---
+
+## ⚙️ Configuration
+
+At the top of `nuke_code_bridge.py`:
 
 ```
-### 3. Menu Integration (menu.py)
-Add the launcher command to your menu.py:
-```python
-import nuke
-import importlib
+BASE_SHARED_PATH = r"Y:\\dev_remco\\SharedNukeScripts"
+SHOW_RUN_CONFIRMATION = True
+USE_SINGLE_SHARED_FOLDER = False
 
-def launch_bridge():
-    try:
-        import nuke_code_bridge
-        importlib.reload(nuke_code_bridge)
-        nuke_code_bridge.start_nuke_code_bridge()
-    except Exception as e:
-        nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
+ENABLE_BACKUPS = True
+MAX_BACKUPS = 3
+MAX_HISTORY_ITEMS = 25
+```
 
-nuke.menu('Nuke').addCommand('Scripts/NukeCodeBridge', launch_bridge)
+---
+
+## 📦 Installation
+
+1. Place `nuke_code_bridge.py` into your `.nuke` folder or shared pipeline module.
+
+2. Add this to your `menu.py`:
 
 ```
-### ⚠️ Pre-launch Configuration
-Before running the bridge, you **must** configure the script settings. Open nuke_code_bridge.py and update these variables at the top:
-| Variable | Description |
-|---|---|
-| **BASE_SHARED_PATH** | The absolute network path for shared scripts. Ensure all users have read/write permissions. |
-| **SHOW_RUN_CONFIRMATION** | Set to True for an execution popup; False for instant execution. |
-| **USE_SINGLE_SHARED_FOLDER** | False for private subfolders; True for one global shared folder. |
-## 🛠 Requirements
- * **Foundry Nuke:** 13.0 or newer (Tested on Nuke 15).
- * **Python:** 3.7+ (Standard with Nuke 13+).
- * **Permissions:** Read/Write access to the BASE_SHARED_PATH.
-## 🔒 Security & Usage
- * **Trust:** Only execute scripts from trusted team members.
- * **Caution:** This tool uses Python's exec() function. Just like the native Nuke Script Editor, executing unverified code can lead to data loss, software crashes, or unintended system changes.
- * **Permissions:** Ensure the shared network directory has the correct Read/Write permissions for your user group.
- * **Beta Software:** This tool is currently in beta. Always back up critical scripts.
-## 🤝 Contributing
-Contributions, discussions, and ideas are welcome! Feel free to submit **Pull Requests** or open **Issues** to suggest new features or report bugs. Especially if you are testing on Linux or macOS!
+import nuke
+import nuke_code_bridge
 
-## 🗺️ Roadmap at a Glance
-We are currently in **Phase 1 (Stability)**. Key upcoming milestones:
+nuke.menu("Nuke").addCommand(
+    "Scripts/NukeCodeBridge",
+    "nuke_code_bridge.start_nuke_code_bridge()"
+)
+```
 
-- [ ] **Safety First:** Automatic `.bak` backups and Namespace Isolation.
-- [ ] **Organization:** Tagging system and Studio "Read-Only" protection.
-- [ ] **Insights:** Integrated console for Python tracebacks and Deep Search.
+3. Configure your repository path:
 
-> 📂 **View the full technical roadmap [here](./ROADMAP.md)**
+```
+BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
+```
 
-### 👨‍💻 Created by Remco Consten
-*VFX Artist & Pipeline Enthusiast*
-[🔗 LinkedIn](https://www.linkedin.com/in/remco-consten-18449626)
+---
+
+## 🧭 Usage
+
+1. Open Nuke  
+2. Go to **Scripts → NukeCodeBridge**  
+3. Select a script from the sidebar or use the “Untitled” tab  
+4. Edit your Python code  
+5. Save / Save As  
+6. Run the code  
+7. View output in the console panel  
+
+---
+
+## 🖼 Screenshots (placeholders)
+
+
+---
+
+## 🗺 Roadmap (Updated)
+
+### Completed
+- ✔ Network repository  
+- ✔ Per‑user vs shared mode  
+- ✔ Multi‑tab editor  
+- ✔ VS Code‑style theme  
+- ✔ Line numbers  
+- ✔ Word‑occurrence highlight  
+- ✔ Zoom system  
+- ✔ Indent/unindent  
+- ✔ Persistent namespace  
+- ✔ Console output  
+- ✔ Status light  
+- ✔ Backup system  
+
+### Planned
+- ☐ Script rename / duplicate / delete  
+- ☐ Execution history panel  
+- ☐ Variable inspector panel  
+- ☐ Console filtering modes  
+- ☐ Help / shortcuts tab  
+- ☐ Script templates  
+- ☐ Snippet library  
+- ☐ Git integration  
+- ☐ Per‑user settings  
+
+---
+
+## 📜 Changelog
+
+### v0.12
+- Major UI overhaul  
+- Multi‑tab support  
+- VS Code‑style theme  
+- Word‑occurrence + current line highlight  
+- Zoom system  
+- Improved console  
+- Backup system rewrite  
+
+### v0.11
+- Modular refactor  
+- Basic multi‑tab  
+- Improved repository handling  
+- Save + backup system  
+- Console redirection  
+
+### v0.9
+- Initial public beta  
+- Single‑tab editor  
+- Basic execution  
+
+---
+
+
+
+
