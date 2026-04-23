@@ -16,107 +16,103 @@ It allows you to **store, edit, run, and share Python scripts directly inside Nu
 
 ---
 
+## 💡 How I Built This: An Artist’s Perspective
+
+I am an artist, not a full-time developer. Like many people in production, I often have ideas for tools that could make our lives easier, and while I know how to move around within Python, I often hit that coding wall.
+
+This tool was an experiment to see if I could use AI as a technical assistant to bring a creative idea to life. And yes, I also used AI to help me write this README to save time. Some of you might find that lazy; I’m starting to find it a way to spend my precious time on something else.
+
+**The Director Workflow:** Instead of writing every line of code from scratch, I acted more like a director.  
+**The Concept:** I knew I wanted a way to share Nuke code snippets quickly across the studio without digging through folders.  
+**The AI Collaboration:** I used AI to do the heavy lifting of building the interface. I described how I wanted the UI to react and how the list should behave, and the AI provided the building blocks.  
+**Problem Solving:** When things broke, I worked with the AI to troubleshoot, testing different versions until it worked perfectly inside the Nuke environment.  
+**Why I’m Sharing This:** I wanted to be open about using AI because I think it’s a game-changer for artists. It allows those of us who speak VFX but maybe do not speak Python fluently to build professional-grade tools.
+
+---
+
 ## 🚀 What’s New Since v0.9
 
 ### **v0.12**
 - Full **VS Code Dark+ themed editor**
-- **Multi‑tab editing** (open multiple scripts at once)
+- **Multi‑tab editing**
 - **Line numbers** with custom gutter
 - **Current line highlight**
 - **Word‑occurrence highlighting**
-- **Zoom system**  
-  - Ctrl + Mouse Wheel  
-  - Ctrl + `+` / `-`  
-  - Ctrl + `0` reset
+- **Zoom system** (Ctrl+Wheel, Ctrl+±, Ctrl+0)
 - **Indent/unindent** (Tab / Shift+Tab)
-- Multi‑line indentation support
+- Multi‑line indentation
 - Improved **syntax highlighting**
 - **Status light** (idle / running / success / error)
-- Dark‑themed **console output panel**
-- Safer, clearer **save** and **backup** behavior
-- Cleaner, more modern UI layout
+- Dark‑themed **console output**
+- Safer **save** and **backup** behavior
+- Cleaner UI layout
 
 ### **v0.11**
-- Modular refactor (core, editor, UI, execution)
+- Modular refactor
 - Initial multi‑tab structure
-- Improved network repository handling
+- Improved repository handling
 - Basic save + backup system
-- Console redirection via StreamRedirector
-- Persistent execution namespace
+- Console redirection
+- Persistent namespace
 
 ### **v0.9**
 - First public beta
 - Single‑tab editor
-- Basic network script loading
-- Basic execution inside Nuke
+- Basic network loading
+- Basic execution
 
 ---
 
 ## ✨ Features (v0.12)
 
-### 📁 Network-Based Repository
-- Central shared folder for all scripts
-- Optional **per‑user subfolders** or **single shared folder**
+### 📁 Network Repository
+- Central shared folder
+- Optional per‑user subfolders
 - Auto‑creates missing directories
-- Script list updates dynamically
+- Dynamic script list
 
-### 📝 Multi‑Tab Python Editor
+### 📝 Multi‑Tab Editor
 - Unlimited tabs
-- “Untitled” tab on startup
-- Each tab tracks its own file path
-- Tabs are closable
+- “Untitled” tab
+- Per‑tab file paths
+- Closable tabs
 
 ### 🎨 VS Code‑Style Editing
 - Dark+ theme
 - Line numbers
 - Current line highlight
 - Word‑occurrence highlight
-- Syntax highlighting (keywords, strings, comments)
+- Syntax highlighting
 - No line wrapping
-- Undo/redo
 
-### 🔧 Smart Editing Tools
+### 🔧 Editing Tools
 - 4‑space indentation
 - Multi‑line indent/unindent
 - Shift+Tab unindent
-- Zoom controls:
-  - Ctrl + Mouse Wheel
-  - Ctrl + `+` / `-`
-  - Ctrl + `0` reset
+- Zoom controls
 
 ### ▶️ Execution Engine
-- Executes code in a **persistent namespace**
-- Automatically injects `nuke` module (if available)
-- Captures:
-  - print() output
-  - Errors
-  - Tracebacks
-- Status light:
-  - Grey = idle  
-  - Yellow = running  
-  - Green = success  
-  - Red = error  
+- Persistent namespace
+- Injects `nuke` module
+- Captures print, errors, tracebacks
+- Status light indicators
 
-### 🖥 Console Output Panel
+### 🖥 Console Panel
 - Read‑only
 - Dark theme
 - Auto‑scroll
-- Shows:
-  - Execution logs
-  - Tracebacks
-  - Save messages
+- Shows logs, errors, saves
 
-### 💾 Saving & Backup System
+### 💾 Save & Backup System
 - Save / Save As
-- Ensures newline at end of file
 - UTF‑8 encoding
-- Optional backups (ENABLE_BACKUPS)
-- Timestamped `.bak` files in `_backups` folder
+- Auto‑newline
+- Timestamped `.bak` backups
 
 ### 📚 Script List Sidebar
-- Lists all `.py` files in the repository
+- Lists `.py` files
 - Double‑click to open
-- Supports per‑user or shared mode
+- Supports shared or per‑user mode
 
 ---
 
@@ -157,18 +153,19 @@ nuke.menu("Nuke").addCommand(
 ```
 BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
 ```
-
 ---
 
 ## 🧭 Usage
 
 1. Open Nuke  
 2. Go to **Scripts → NukeCodeBridge**  
-3. Select a script from the sidebar or use the “Untitled” tab  
+3. Select a script or use “Untitled”  
 4. Edit your Python code  
 5. Save / Save As  
 6. Run the code  
-7. View output in the console panel  
+7. View output in the console  
+
+---
 
 ---
 
@@ -176,7 +173,7 @@ BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
 
 ### Completed
 - ✔ Network repository  
-- ✔ Per‑user vs shared mode  
+- ✔ Per‑user/shared mode  
 - ✔ Multi‑tab editor  
 - ✔ VS Code‑style theme  
 - ✔ Line numbers  
@@ -191,8 +188,8 @@ BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
 ### Planned
 - ☐ Script rename / duplicate / delete  
 - ☐ Execution history panel  
-- ☐ Variable inspector panel  
-- ☐ Console filtering modes  
+- ☐ Variable inspector  
+- ☐ Console filtering  
 - ☐ Help / shortcuts tab  
 - ☐ Script templates  
 - ☐ Snippet library  
@@ -207,7 +204,7 @@ BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
 - Major UI overhaul  
 - Multi‑tab support  
 - VS Code‑style theme  
-- Word‑occurrence + current line highlight  
+- Word‑occurrence + line highlight  
 - Zoom system  
 - Improved console  
 - Backup system rewrite  
@@ -225,6 +222,52 @@ BASE_SHARED_PATH = r"X:/pipeline/nuke/scripts"
 - Basic execution  
 
 ---
+
+## 📌 Requirements
+
+- **Foundry Nuke:** 13.0 or newer (Tested on Nuke 15)  
+- **Python:** 3.7+ (Standard with Nuke 13+)  
+- **Permissions:** Read/Write access to `BASE_SHARED_PATH`
+
+---
+
+## 🔒 Security & Usage
+
+- **Trust:** Only execute scripts from trusted team members.  
+- **Caution:** This tool uses Python’s `exec()` — just like Nuke’s Script Editor.  
+  Executing unverified code can cause crashes or data loss.  
+- **Permissions:** Ensure the shared directory has correct read/write access.  
+- **Beta Software:** Always back up critical scripts.
+
+---
+
+## 🤝 Contributing
+
+Contributions, discussions, and ideas are welcome!  
+Submit Pull Requests or open Issues — especially if you are testing on Linux or macOS.
+
+---
+
+## 🗺️ Roadmap at a Glance
+
+We are currently in **Phase 1 (Stability)**.  
+Upcoming milestones:
+
+- **Safety First:** Automatic `.bak` backups and namespace isolation  
+- **Organization:** Tagging system and studio “read‑only” protection  
+- **Insights:** Integrated console for tracebacks and deep search  
+
+📂 *Full technical roadmap coming soon*
+
+---
+
+## 👨‍💻 Created by Remco Consten  
+VFX Artist & Pipeline Enthusiast  
+🔗 
+
+---
+
+
 
 
 
