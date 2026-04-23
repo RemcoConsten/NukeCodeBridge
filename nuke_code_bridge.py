@@ -1,39 +1,39 @@
-import nuke
-import os
-import getpass
+# NukeCodeBridge v0.11
+# Network-Based Script Manager & Python Editor for Foundry Nuke
+
+from __future__ import print_function
+
 import re
-import subprocess
+import os
+import sys
+import traceback
+import datetime
+import __main__
+import shutil
 
-# --- PySide Compatibility ---
-# Ensures the tool runs in both older Nuke (PySide2) and newer Nuke (PySide6)
+
 try:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    import nuke
 except ImportError:
-    from PySide6 import QtWidgets, QtCore, QtGui
+    nuke = None
 
-# ============================
-# === GLOBAL CONFIG ===
-# ============================
-VERSION = "v0.9 beta"
-AUTHOR = "Remco Consten"
-YEAR = "2026"
+# Try PySide2 first, then PySide6
+try:
+    from PySide2 import QtCore, QtGui, QtWidgets
+except ImportError:
+    from PySide6 import QtCore, QtGui, QtWidgets
 
-# <<< EDIT THIS BASE PATH FOR YOUR STUDIO for example:r"\\YOUR_SERVER\YOUR_SHARE\SharedNukeScripts"  >>>
-BASE_SHARED_PATH = r"REPLACE_WITH_YOUR_PATH" 
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
 
+BASE_SHARED_PATH = r"REPLACE_WITH_YOUR_PATH"
 SHOW_RUN_CONFIRMATION = True
 USE_SINGLE_SHARED_FOLDER = False
 
-if USE_SINGLE_SHARED_FOLDER:
-    SHARED_SERVER_PATH = os.path.join(BASE_SHARED_PATH, "Shared")
-    CURRENT_USER = "Shared"
-else:
-    SHARED_SERVER_PATH = BASE_SHARED_PATH
-    try:
-        CURRENT_USER = getpass.getuser()
-    except Exception:
-        CURRENT_USER = os.environ.get("USERNAME", "default_user")
-
+ENABLE_BACKUPS = True
+MAX_BACKUPS = 3
+MAX_HISTORY_ITEMS = 25
 # ============================
 # === CUSTOM WIDGETS ===
 # ============================
