@@ -262,8 +262,10 @@ Upcoming milestones:
 ---
 
 ## 👨‍💻 Created by Remco Consten  
-VFX Artist & Pipeline Enthusiast  
-🔗 
+VFX Artist & Pipeline Enthusiast
+<a
+href="https://www.linkedin.com/in/remcoconsten/" target="_blank">LinkedIn
+</a> 
 
 ---
 
