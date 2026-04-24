@@ -63,57 +63,61 @@ This tool was an experiment to see if I could use AI as a technical assistant to
 
 ---
 
+Here is the updated and expanded features list, merging your original categories with all the new "Pro" features we just implemented.
+
 ## ✨ Features (v0.12)
 
-### 📁 Network Repository
-- Central shared folder
-- Optional per‑user subfolders
-- Auto‑creates missing directories
-- Dynamic script list
+### 📁 Network Repository & Sidebar
+- **Centralized Storage:** All scripts saved to a shared network path.
+- **User Sandboxing:** Toggle between your private folder and the `all_users` shared repository.
+- **Live Search:** Sidebar filter to find scripts by name in real-time.
+- **Dynamic Refresh:** Script list updates automatically when files are added or deleted.
 
 ### 📝 Multi‑Tab Editor
-- Unlimited tabs
-- “Untitled” tab
-- Per‑tab file paths
-- Closable tabs
+- **Unlimited Workspace:** Open as many scripts as needed.
+- **Dirty State Tracking:** Tabs show an asterisk (`*`) when there are unsaved changes.
+- **Smart Closables:** Individual close buttons for each tab.
+- **Persistent Metadata:** Each tab tracks its own unique file path.
 
 ### 🎨 VS Code‑Style Editing
-- Dark+ theme
-- Line numbers
-- Current line highlight
-- Word‑occurrence highlight
-- Syntax highlighting
-- No line wrapping
+- **Dark+ Professional Theme:** High-contrast syntax highlighting optimized for long sessions.
+- **Visual Navigation:** Line numbers, current line highlighting, and automatic word-occurrence highlighting.
+- **No Line Wrapping:** Standard IDE behavior to maintain code structure.
 
-### 🔧 Editing Tools
-- 4‑space indentation
-- Multi‑line indent/unindent
-- Shift+Tab unindent
-- Zoom controls
+### 🔍 Find & Replace Suite
+- **Dual-Row UI:** Dedicated horizontal bars for Find and Replace functionality.
+- **Bi-Directional Search:** Navigate through code with "Next" and "Prev" controls.
+- **Bulk Replacement:** "Replace All" functionality wrapped in a single Undo block.
+- **Looping Logic:** Automatically wraps from the end of the script back to the start.
+- **Quick Access:** Toggled via button or the standard `Ctrl+F` shortcut.
+
+### 🔧 Editing & Navigation Tools
+- **Python-Standard Indent:** 4-space indentation with multi-line support.
+- **Smart Unindent:** `Shift + Tab` to move blocks left.
+- **Zoom Controls:** `Ctrl + Mouse Wheel` or `Ctrl + 0` to reset font size to 10pt.
+- **Dedent Execution:** Automatically dedents highlighted snippets before running.
 
 ### ▶️ Execution Engine
-- Persistent namespace
-- Injects `nuke` module
-- Captures print, errors, tracebacks
-- Status light indicators
+- **Persistent Namespace:** Variables stay in memory between runs (no more re-importing).
+- **Hardened Execution:** Captures all `stdout`, `stderr`, and full Python tracebacks.
+- **Status Light System:** - ● **Grey:** Idle
+  - ● **Yellow:** Busy (Executing)
+  - ● **Green:** Success
+  - ● **Red:** Error (Check Console)
 
-### 🖥 Console Panel
-- Read‑only
-- Dark theme
-- Auto‑scroll
-- Shows logs, errors, saves
+### 🖥 Console & History Panel
+- **Smart Filters:** Toggle between "All", "Errors Only", and "Actions/Info" to clean up noise.
+- **Execution History:** Live log of every run. Double-click any entry to restore that snippet.
+- **Variable Explorer:** View every variable currently living in your bridge's session memory.
 
 ### 💾 Save & Backup System
-- Save / Save As
-- UTF‑8 encoding
-- Auto‑newline
-- Timestamped `.bak` backups
+- **Binary Hardened Saving:** Saves in `wb` mode to prevent character mangling (e.g., brackets changing).
+- **Auto-Backup:** Creates timestamped `.bak` files in a hidden `_backups` folder on every save.
+- **Version Control:** Automatically keeps the last 3 versions of every script.
 
-### 📚 Script List Sidebar
-- Lists `.py` files
-- Double‑click to open
-- Supports shared or per‑user mode
-
+### 🚀 Nuke Integration
+- **Universal Shortcut Layer:** Custom logic ensures `Ctrl+S`, `Ctrl+F`, and `Enter` work in both Nuke 15 (PySide2) and Nuke 17 (PySide6).
+- **Native UI Feel:** Built to dock and integrate seamlessly within the Nuke interface.
 ---
 
 ## ⚙️ Configuration
