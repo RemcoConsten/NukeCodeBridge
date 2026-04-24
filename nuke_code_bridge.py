@@ -10,6 +10,7 @@ import traceback
 import datetime
 import __main__
 import shutil
+import json
 
 try:
     import nuke
@@ -30,7 +31,8 @@ except ImportError:
 # Configuration
 # ----------------------------------------------------------------------
 
-BASE_SHARED_PATH = r"X:\\your_shared_folder\SharedNukeScripts"
+#location of nukecodebride.py
+BASE_SHARED_PATH = r"X:\\yourshared_envirement\python\nuke_code_bridge\"
 SHOW_RUN_CONFIRMATION = True
 USE_SINGLE_SHARED_FOLDER = False
 
@@ -100,7 +102,7 @@ class LineNumberArea(QtWidgets.QWidget):
         self.code_editor.lineNumberAreaPaintEvent(event)
 
 # ----------------------------------------------------------------------
-# Code Editor with Line Numbers, Highlight, Zoom, Indentation
+# Main Code Editor Class
 # ----------------------------------------------------------------------
 
 class CodeEditor(QtWidgets.QPlainTextEdit):
@@ -110,89 +112,193 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
         super().__init__(parent)
         self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
 
-        # Font
+        # 1. Font Setup
         font = QtGui.QFont("Consolas", 10)
+        font.setFixedPitch(True)
         self.setFont(font)
         self._default_point_size = font.pointSize()
         self._current_zoom = 0
-        # VS Code Dark+ editor colors
+
+        # 2. VS Code Dark+ Styling
         self.setStyleSheet("""
             QPlainTextEdit {
-                background-color: #1E1E1E;      /* VS Code Dark+ background */
-                color: #D4D4D4;                 /* VS Code default text */
-                selection-background-color: #264F78;  /* VS Code selection blue */
+                background-color: #1E1E1E;
+                color: #D4D4D4;
+                selection-background-color: #264F78;
+                border: none;
             }
         """)
 
-
-        # Tabs
+        # 3. Editor Settings
         self.setTabStopDistance(self.fontMetrics().horizontalAdvance(" ") * 4)
+        self._current_line_color = QtGui.QColor(60, 60, 60, 80)
 
-        # Line number area
+        # 4. Line Number Area Initialization
         self._line_number_area = LineNumberArea(self)
+
+        # Connections
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
         self.cursorPositionChanged.connect(self.highlightCurrentLine)
         self.cursorPositionChanged.connect(self.highlightOccurrences)
 
+        # Force repaints for guides
+        self.horizontalScrollBar().valueChanged.connect(lambda: self.viewport().update())
+        self.verticalScrollBar().valueChanged.connect(lambda: self.viewport().update())
+        self.textChanged.connect(lambda: self.viewport().update())
+        self.cursorPositionChanged.connect(lambda: self.viewport().update())
+
+        # Initial margin
         self.updateLineNumberAreaWidth(0)
 
-        # Current line highlight color
-        self._current_line_color = QtGui.QColor(60, 60, 60, 80)
+        #Trigger session save on typing
+        self.textChanged.connect(self.parent()._save_session_state if self.parent() else lambda: None)
 
-    # ------------------------------------------------------------
-    # Line Numbers
-    # ------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Sidebar & Margin Logic
+    # ------------------------------------------------------------------
+
+    def event(self, e):
+        result = super().event(e)
+
+        if e.type() in (
+            QtCore.QEvent.FontChange,
+            QtCore.QEvent.Resize,
+            QtCore.QEvent.LayoutRequest,
+            QtCore.QEvent.UpdateRequest,
+        ):
+            self.updateLineNumberAreaWidth(0)
+
+        return result
+
     def lineNumberAreaWidth(self):
         digits = 1
-        max_block = max(1, self.blockCount())
-        while max_block >= 10:
-            max_block //= 10
+        max_val = max(1, self.blockCount())
+        while max_val >= 10:
+            max_val //= 10
             digits += 1
-        return 3 + self.fontMetrics().horizontalAdvance("9") * digits
+
+        char_width = self.fontMetrics().horizontalAdvance("9")
+        return 40 + (char_width * digits)
 
     def updateLineNumberAreaWidth(self, _):
-        self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
+        new_width = self.lineNumberAreaWidth()
+        self.setViewportMargins(new_width, 0, 0, 0)
+        self.updateGeometry()
+        self.document().setDocumentMargin(2)
+        self.viewport().update()
 
     def updateLineNumberArea(self, rect, dy):
         if dy:
             self._line_number_area.scroll(0, dy)
         else:
             self._line_number_area.update(0, rect.y(), self._line_number_area.width(), rect.height())
+
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        cr = self.contentsRect()
-        self._line_number_area.setGeometry(
-            QtCore.QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height())
-        )
+        self._line_number_area.setGeometry(0, 0, self.lineNumberAreaWidth(), self.height())
+
+    # ------------------------------------------------------------------
+    # Painting
+    # ------------------------------------------------------------------
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self._line_number_area)
-        painter.fillRect(event.rect(), QtGui.QColor(40, 40, 40))
+        painter.fillRect(event.rect(), QtGui.QColor(35, 35, 35))
 
         block = self.firstVisibleBlock()
         block_number = block.blockNumber()
-        top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
+        offset = self.contentOffset()
+
+        top = int(self.blockBoundingGeometry(block).translated(offset).top())
         bottom = top + int(self.blockBoundingRect(block).height())
 
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
-                number = str(block_number + 1)
-                painter.setPen(QtGui.QColor(160, 160, 160))
+                painter.setPen(QtGui.QColor(133, 133, 133))
                 painter.drawText(
-                    0, top, self._line_number_area.width() - 4,
+                    0, top,
+                    self.lineNumberAreaWidth() - 15,
                     self.fontMetrics().height(),
                     QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter,
-                    number
+                    str(block_number + 1)
                 )
+
             block = block.next()
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
             block_number += 1
 
+    def paintEvent(self, event):
+        """Draws text and VS Code–accurate indentation guides."""
+        super().paintEvent(event)
+
+        painter = QtGui.QPainter(self.viewport())
+        painter.setRenderHint(QtGui.QPainter.Antialiasing, False)
+        painter.setPen(QtGui.QColor(255, 255, 255, 28))  # faint VS Code white
+
+        metrics = self.fontMetrics()
+        space_width = metrics.horizontalAdvance(" ")
+        indent_width = space_width * 4
+
+        block = self.firstVisibleBlock()
+        offset = self.contentOffset()
+
+        while block.isValid():
+            geom = self.blockBoundingGeometry(block).translated(offset)
+            top = int(geom.top())
+            bottom = int(geom.bottom())
+
+            if top > self.viewport().rect().bottom():
+                break
+
+            text = block.text()
+
+            # ------------------------------------------------------------
+            # VS CODE INDENTATION DETECTION (pixel-based)
+            # ------------------------------------------------------------
+            cursor = QtGui.QTextCursor(block)
+            cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
+
+            # Move until non-whitespace
+            while cursor.positionInBlock() < len(text) and text[cursor.positionInBlock()].isspace():
+                cursor.movePosition(QtGui.QTextCursor.NextCharacter)
+
+            first_char_x = self.cursorRect(cursor).left()
+            block_start_x = self.cursorRect(QtGui.QTextCursor(block)).left()
+
+            indent_px = first_char_x - block_start_x
+            indent_level = max(0, int(indent_px // indent_width))
+
+            # ------------------------------------------------------------
+            # Draw guides EXACTLY like VS Code:
+            # at the *start* of each indent block, not centered
+            # ------------------------------------------------------------
+            if indent_level > 0:
+                indent_start_x = first_char_x - indent_px
+
+                for i in range(indent_level):
+                    guide_x = indent_start_x + (i * indent_width)
+                    if guide_x > 0:
+                        painter.drawLine(int(guide_x), top, int(guide_x), bottom)
+
+            block = block.next()
+
+        painter.end()
+
+
+
+    # --- Functionality Methods ---
+    def highlightCurrentLine(self):
+        # Implementation of current line highlight
+        pass
+
+    def highlightOccurrences(self):
+        # Implementation of word occurrence highlight
+        pass
     # ------------------------------------------------------------
     # Highlight Current Line
     # ------------------------------------------------------------
@@ -490,6 +596,7 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
                 start, end = match.span()
                 self.setFormat(start, end - start, fmt)
 
+
     
 
 # ----------------------------------------------------------------------
@@ -498,23 +605,32 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
 
 class NukeCodeBridge(QtWidgets.QWidget):
     def __init__(self, parent=None):
-        super(NukeCodeBridge, self).__init__(parent)
-        self.setWindowTitle("NukeCodeBridge v0.12")
-        self.exec_namespace = {}
+            # 1. Grab the active Nuke window to act as the parent if none is provided
+            if parent is None:
+                parent = QtWidgets.QApplication.activeWindow()
+                
+            super(NukeCodeBridge, self).__init__(parent)
+            self.setWindowTitle("NukeCodeBridge v0.12")
+            self.exec_namespace = {}
 
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.Window)
-        self.raise_()
-        self.activateWindow()
+            # 2. Qt.Window flag ensures it still opens as its own free-floating window,
+            # but because it now has a parent, it stays on top of Nuke!
+            self.setWindowFlags(self.windowFlags() | QtCore.Qt.Window)
+            
+            self.raise_()
+            self.activateWindow()
 
-        self.current_user = get_user_name()
-        self.current_repo_path = None
-        self.global_zoom = 0
+            self.current_user = get_user_name()
+            self.current_repo_path = None
+            self.global_zoom = 0
 
-        self._init_paths()
-        self._init_state()
-        self._init_ui()
-        self._refresh_script_list()
-        self._update_status_bar()
+            self._init_paths()
+            self._init_state()
+            self._init_ui()
+            self._refresh_script_list()
+            self._update_status_bar()
+            self._restore_session_state()
+
 
     def _force_raise(self):
         QtCore.QTimer.singleShot(120, self.raise_)
@@ -611,6 +727,75 @@ class NukeCodeBridge(QtWidgets.QWidget):
         if not found:
             editor.moveCursor(QtGui.QTextCursor.End)
             editor.find(text, QtGui.QTextDocument.FindBackward)
+
+    def _save_session_state(self):
+        """Saves all unsaved/Untitled tabs into a JSON buffer in the user folder."""
+        # If paths are not ready yet, bail out safely
+        if not self.current_repo_path:
+            return
+
+        session_data = []
+        for i in range(self.tab_widget.count()):
+            editor = self.tab_widget.widget(i)
+            title = self.tab_widget.tabText(i)
+
+            # Only save tabs that have no file_path (Untitled) and are not empty
+            if not getattr(editor, 'file_path', None) and editor.toPlainText().strip():
+                session_data.append({
+                    "title": title,
+                    "content": editor.toPlainText()
+                })
+
+        buffer_path = os.path.join(self.current_repo_path, ".session_recovery.json")
+        try:
+            with open(buffer_path, 'w') as f:
+                json.dump(session_data, f, indent=4)
+        except Exception as e:
+            print("Session Save Error: {}".format(e))
+
+    def _restore_session_state(self):
+        """Recreates all Untitled tabs from the last session."""
+        if not self.current_repo_path:
+            return
+
+        buffer_path = os.path.join(self.current_repo_path, ".session_recovery.json")
+        if not os.path.exists(buffer_path):
+            return
+
+        try:
+            with open(buffer_path, 'r') as f:
+                session_data = json.load(f)
+
+            for item in session_data:
+                # Use your existing tab creation logic
+                self._new_tab(
+                    title=item.get("title", "Untitled"),
+                    content=item.get("content", ""),
+                    file_path=None
+                )
+
+            # Remove after loading so we don't duplicate next time
+            os.remove(buffer_path)
+        except Exception as e:
+            print("Session Restore Error: {}".format(e))
+
+    def closeEvent(self, event):
+        """Saves session when the tool is closed."""
+        self._save_session_state()
+        event.accept()
+
+    def _on_tab_changed(self, index):
+        editor = self.tab_widget.widget(index)
+        if not editor:
+            return
+
+        # If the tab has a real file path → show its name
+        if getattr(editor, "file_path", None):
+            self.filename_edit.setText(os.path.basename(editor.file_path))
+        else:
+            # Untitled tab → clear the filename bar
+            self.filename_edit.clear()
+
     
 
     # -----------------------------
@@ -627,7 +812,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         self.history_items = []
         self.max_history = MAX_HISTORY_ITEMS
 
-    def _create_editor(self, content="", file_path=None):
+    def _create_editor(self, content="", title=None, file_path=None):
         editor = CodeEditor()
         editor.setPlainText(content)
         editor.file_path = file_path
@@ -647,14 +832,23 @@ class NukeCodeBridge(QtWidgets.QWidget):
 
         editor.textChanged.connect(self._on_editor_modified)
         editor.zoomChanged.connect(self._on_editor_zoom_changed)
+
+        # 🔹 trigger session save whenever this editor changes
+        editor.textChanged.connect(self._save_session_state)
+
         return editor
 
     # -----------------------------
     # Tabs & Editors
     # -----------------------------
     def _new_tab(self, title, content="", file_path=None):
-        editor = self._create_editor(content, file_path)
+        editor = self._create_editor(content, title=title, file_path=file_path)
         idx = self.tab_widget.addTab(editor, title)
+        # If no title provided, default to Untitled
+        if not title:
+            title = os.path.basename(file_path) if file_path else "Untitled"
+
+
         self.tab_widget.setCurrentIndex(idx)
 
     def _close_tab(self, index):
@@ -664,6 +858,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
             editor.file_path = None
             self.tab_widget.setTabText(index, "Untitled")
             return
+
         widget = self.tab_widget.widget(index)
         self.tab_widget.removeTab(index)
         widget.deleteLater()
@@ -859,6 +1054,7 @@ class NukeCodeBridge(QtWidgets.QWidget):
         self.tab_widget.setTabsClosable(True)
         self.tab_widget.tabCloseRequested.connect(self._close_tab)
         self.right_vertical_splitter.addWidget(self.tab_widget)
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
         # --- Console Area ---
         console_container = QtWidgets.QWidget()
@@ -1126,12 +1322,6 @@ BACKUPS:
 
         # Vertical Splitter (Editor vs Console)
         self.right_vertical_splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-        
-        # Editor Tabs
-        self.tab_widget = QtWidgets.QTabWidget()
-        self.tab_widget.setTabsClosable(True)
-        self.tab_widget.tabCloseRequested.connect(self._close_tab)
-        self.right_vertical_splitter.addWidget(self.tab_widget)
 
         # --- Console Area ---
         console_container = QtWidgets.QWidget()
@@ -1628,27 +1818,17 @@ BACKUPS:
 
         title = os.path.basename(path)
 
-        # --- ALWAYS load into the visible tab's editor ---
-        current_widget = self.tab_widget.currentWidget()
+        # --- ALWAYS create a new tab for opened scripts ---
+        editor = self._create_editor(content=content, title=title, file_path=path)
+        idx = self.tab_widget.addTab(editor, title)
+        self.tab_widget.setCurrentIndex(idx)
 
-        # If the current tab is NOT an editor, create one
-        if not hasattr(current_widget, "setPlainText"):
-            current_widget = self._create_editor("", None)
-            idx = self.tab_widget.addTab(current_widget, title)
-            self.tab_widget.setCurrentIndex(idx)
-
-        # Load content
-        current_widget.blockSignals(True)
-        current_widget.setPlainText(content)
-        current_widget.blockSignals(False)
-
-        # Update metadata
-        current_widget.file_path = path
-        self.tab_widget.setTabText(self.tab_widget.currentIndex(), title)
+        # Update UI
         self.filename_edit.setText(title)
-        self._clear_dirty_flag(current_widget)
+        self._clear_dirty_flag(editor)
 
         self._append_console(f"Opened: {path}")
+
 
     def _new_script(self):
         self._new_tab("Untitled")
@@ -1675,24 +1855,38 @@ BACKUPS:
         code = editor.toPlainText()
         path = getattr(editor, "file_path", None)
 
-        # 1. Overwrite existing file
+        # 1. If the editor has a real file path → overwrite safely
         if path:
             self._save_to_path(path, code)
             self._clear_dirty_flag(editor)
             return
 
-        # 2. New file via top bar
+        # 2. If the editor has NO file_path → force Save As
+        # Ignore filename_edit completely (it may contain stale names)
         file_name = self.filename_edit.text().strip()
+
+        # If filename_edit is empty → user MUST enter a name
         if not file_name:
-            self._append_console("ERROR: No filename entered in the top bar.", "error")
+            self._append_console("ERROR: Please enter a filename before saving.", "error")
             return
 
-        if not file_name.lower().endswith(".py"):
-            file_name += ".py"
-
+        # Prevent overwriting existing scripts accidentally
         target_folder = self._get_user_save_folder()
         path = os.path.join(target_folder, file_name)
 
+        if os.path.exists(path):
+            self._append_console(
+                f"ERROR: '{file_name}' already exists. Use Save As to overwrite.",
+                "error"
+            )
+            return
+
+        # Ensure .py extension
+        if not file_name.lower().endswith(".py"):
+            file_name += ".py"
+            path = os.path.join(target_folder, file_name)
+
+        # Save new file
         self._save_to_path(path, code)
 
         # Update UI
