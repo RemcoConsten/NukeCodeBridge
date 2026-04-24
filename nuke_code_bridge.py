@@ -1,4 +1,4 @@
-# NukeCodeBridge v0.11
+# NukeCodeBridge v0.12
 # Network-Based Script Manager & Python Editor for Foundry Nuke
 
 from __future__ import print_function
@@ -11,23 +11,26 @@ import datetime
 import __main__
 import shutil
 
-
 try:
     import nuke
 except ImportError:
     nuke = None
 
-# Try PySide2 first, then PySide6
+# --- Universal Compatibility Layer ---
 try:
-    from PySide2 import QtCore, QtGui, QtWidgets
+    from PySide6 import QtWidgets, QtGui, QtCore
+    # In PySide6, Shortcut is in QtGui
+    UniversalShortcut = QtGui.QShortcut 
 except ImportError:
-    from PySide6 import QtCore, QtGui, QtWidgets
+    from PySide2 import QtWidgets, QtGui, QtCore
+    # In PySide2, Shortcut is in QtWidgets
+    UniversalShortcut = QtWidgets.QShortcut
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
 
-BASE_SHARED_PATH = r"Y:\dev_remco\SharedNukeScripts"
+BASE_SHARED_PATH = r"X:\\your_shared_folder\SharedNukeScripts"
 SHOW_RUN_CONFIRMATION = True
 USE_SINGLE_SHARED_FOLDER = False
 
@@ -496,7 +499,7 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
 class NukeCodeBridge(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(NukeCodeBridge, self).__init__(parent)
-        self.setWindowTitle("NukeCodeBridge v0.11")
+        self.setWindowTitle("NukeCodeBridge v0.12")
         self.exec_namespace = {}
 
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.Window)
@@ -519,6 +522,96 @@ class NukeCodeBridge(QtWidgets.QWidget):
 
     def _exec_in_namespace(self, code):
         exec(code, self.exec_namespace)
+    
+    def _show_search_bar(self):
+        self.search_bar_widget.show()
+        self.editor_search_edit.setFocus()
+        self.editor_search_edit.selectAll()
+
+    def _do_editor_search(self):
+        editor = self.get_current_editor()
+        if not editor: return
+        text = self.editor_search_edit.text()
+        if text:
+            editor.find(text)
+
+    def _find_next(self):
+        editor = self.get_current_editor()
+        if not editor: return
+        text = self.editor_search_edit.text()
+        if not text: return
+        
+        if not editor.find(text):
+            editor.moveCursor(QtGui.QTextCursor.Start)
+            editor.find(text)
+
+    def _replace_next(self):
+            editor = self.get_current_editor()
+            if not editor: return
+            
+            search_text = self.editor_search_edit.text()
+            replace_text = self.editor_replace_edit.text()
+            if not search_text: return
+            
+            cursor = editor.textCursor()
+            
+            # If we have the word already highlighted, replace it
+            if cursor.hasSelection() and cursor.selectedText() == search_text:
+                cursor.insertText(replace_text)
+                # After replacing, immediately look for the next one
+                self._find_next()
+            else:
+                # If nothing is selected or it doesn't match, just find the next one
+                self._find_next()
+
+    def _replace_all(self):
+            editor = self.get_current_editor()
+            if not editor: return
+            
+            search_text = self.editor_search_edit.text()
+            replace_text = self.editor_replace_edit.text()
+            
+            if not search_text: 
+                self._append_console("Please enter text to find.", "error")
+                return
+
+            # 1. Get the current text
+            content = editor.toPlainText()
+            
+            # 2. Check if it even exists to avoid unnecessary refreshes
+            count = content.count(search_text)
+            if count == 0:
+                self._append_console(f"No occurrences of '{search_text}' found.", "info")
+                return
+
+            # 3. Perform the replace
+            new_content = content.replace(search_text, replace_text)
+
+            # 4. Use a cursor block to swap the text
+            # This is much "cleaner" than setPlainText for the undo stack
+            cursor = editor.textCursor()
+            cursor.beginEditBlock() # Groups all changes into ONE Undo (Ctrl+Z)
+            
+            editor.setPlainText(new_content)
+            
+            cursor.endEditBlock()
+            
+            self._append_console(f"Successfully replaced {count} occurrences.", "info")
+    
+    def _find_prev(self):
+        editor = self.get_current_editor()
+        if not editor: return
+        text = self.editor_search_edit.text()
+        if not text: return
+
+        # Search backward using the FindBackward flag
+        found = editor.find(text, QtGui.QTextDocument.FindBackward)
+
+        # If not found (reached the top), wrap to the bottom
+        if not found:
+            editor.moveCursor(QtGui.QTextCursor.End)
+            editor.find(text, QtGui.QTextDocument.FindBackward)
+    
 
     # -----------------------------
     # Init
@@ -688,6 +781,76 @@ class NukeCodeBridge(QtWidgets.QWidget):
         right_main_layout.setContentsMargins(0, 0, 0, 0)
         right_main_layout.setSpacing(0)
 
+        # --- Editor Search & Replace Bar (Hidden by default) --- NEW
+        self.search_bar_widget = QtWidgets.QWidget()
+        self.search_bar_widget.hide()
+        self.search_bar_widget.setStyleSheet("background-color: #2D2D2D; border-bottom: 2px solid #111;")
+        
+        search_main_vlyt = QtWidgets.QVBoxLayout(self.search_bar_widget)
+        search_main_vlyt.setContentsMargins(10, 5, 10, 5)
+        search_main_vlyt.setSpacing(4)
+
+        # NEW Previous Button
+        self.find_prev_btn = QtWidgets.QPushButton("Prev")
+        self.find_prev_btn.setFixedWidth(50)
+        self.find_prev_btn.clicked.connect(self._find_prev) # Connect to new method
+
+        # Row 1: FIND NEW
+        row1 = QtWidgets.QHBoxLayout()
+        self.editor_search_edit = QtWidgets.QLineEdit()
+        self.editor_search_edit.setPlaceholderText("Find...")
+        self.editor_search_edit.setStyleSheet("background-color: #3C3C3C; color: #D4D4D4; padding: 2px;")
+        self.editor_search_edit.textChanged.connect(self._do_editor_search)
+        self.editor_search_edit.returnPressed.connect(self._find_next)
+
+        # NEW Previous Button
+        self.find_prev_btn = QtWidgets.QPushButton("Prev")
+        self.find_prev_btn.setFixedWidth(50)
+        self.find_prev_btn.clicked.connect(self._find_prev) # Connect to new method
+
+        self.find_next_btn = QtWidgets.QPushButton("Next")
+        self.find_next_btn.setFixedWidth(50)
+        self.find_next_btn.clicked.connect(self._find_next)
+
+        self.close_search_btn = QtWidgets.QPushButton("✕")
+        self.close_search_btn.setFixedWidth(25)
+        self.close_search_btn.setStyleSheet("border: none; color: #888; font-size: 14px;")
+        self.close_search_btn.clicked.connect(self.search_bar_widget.hide)
+
+        row1.addWidget(QtWidgets.QLabel("🔍"))
+        row1.addWidget(self.editor_search_edit)
+        row1.addWidget(self.find_prev_btn) 
+        row1.addWidget(self.find_next_btn)
+        row1.addWidget(self.close_search_btn)
+        
+
+        # ROW 2: REPLACE NEW
+        row2 = QtWidgets.QHBoxLayout()
+        self.editor_replace_edit = QtWidgets.QLineEdit()
+        self.editor_replace_edit.setPlaceholderText("Replace with...")
+        self.editor_replace_edit.setStyleSheet("background-color: #3C3C3C; color: #D4D4D4; padding: 2px;")
+
+        self.replace_btn = QtWidgets.QPushButton("Replace")
+        self.replace_btn.setFixedWidth(70)
+        self.replace_btn.clicked.connect(self._replace_next)
+
+        self.replace_all_btn = QtWidgets.QPushButton("All")
+        self.replace_all_btn.setFixedWidth(40)
+        self.replace_all_btn.clicked.connect(self._replace_all)
+
+        row2.addWidget(QtWidgets.QLabel("✏️"))
+        row2.addWidget(self.editor_replace_edit)
+        row2.addWidget(self.replace_btn)
+        row2.addWidget(self.replace_all_btn)
+        row2.addSpacing(29)
+
+        search_main_vlyt.addLayout(row1)
+        search_main_vlyt.addLayout(row2)
+
+        # Insert at the very top of the right panel NEW
+        right_main_layout.insertWidget(0, self.search_bar_widget)
+
+
         # Vertical Splitter (Editor vs Console)
         self.right_vertical_splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
 
@@ -710,6 +873,13 @@ class NukeCodeBridge(QtWidgets.QWidget):
         console_header.addWidget(self.status_light)
 
         console_header.addWidget(QtWidgets.QLabel("Console Output:"))
+        console_header.addStretch()
+
+        # Add a subtle shortcut reminder
+        shortcut_hint = QtWidgets.QLabel("(Ctrl+F to Find)")
+        shortcut_hint.setStyleSheet("color: #666; font-style: italic; margin-left: 10px;")
+        console_header.addWidget(shortcut_hint)
+        
         console_header.addStretch()
 
         # Filter Mode Dropdown
@@ -737,6 +907,14 @@ class NukeCodeBridge(QtWidgets.QWidget):
         self.right_vertical_splitter.setCollapsible(1, False)
 
         right_main_layout.addWidget(self.right_vertical_splitter, 1)
+
+        # Open Search/Replace Bar
+        self.search_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+F"), self)
+        self.search_shortcut.activated.connect(self._show_search_bar)
+        
+        # Close Search Bar
+        self.esc_shortcut = UniversalShortcut(QtGui.QKeySequence("Esc"), self)
+        self.esc_shortcut.activated.connect(self.search_bar_widget.hide)
 
         # ------------------------------------------------------------
         # Bottom Button Row
@@ -808,10 +986,10 @@ class NukeCodeBridge(QtWidgets.QWidget):
         main_layout.addWidget(self.status_bar)
 
         # Shortcuts
-        self.save_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+S"), self)
+        self.save_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+S"), self)
         self.save_shortcut.activated.connect(self.save_script)
 
-        self.run_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Return"), self)
+        self.run_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+Return"), self)
         self.run_shortcut.activated.connect(self.execute_code)
 
         self._new_tab("Untitled")
@@ -940,7 +1118,7 @@ BACKUPS:
     # -----------------------------
     def _append_console(self, text, msg_type="info"):
 
-# --- Right Panel (Editor + Scalable Console) ---
+        # --- Right Panel (Editor + Scalable Console) ---
         right_main_container = QtWidgets.QWidget()
         right_main_layout = QtWidgets.QVBoxLayout(right_main_container)
         right_main_layout.setContentsMargins(0, 0, 0, 0)
@@ -1015,11 +1193,25 @@ BACKUPS:
         self.refresh_vars_btn = QtWidgets.QPushButton("Refresh Vars")
         self.refresh_vars_btn.clicked.connect(self.refresh_variables)
 
+        # NEW Find/Replace Button
+        self.find_replace_btn = QtWidgets.QPushButton("Find/Replace")
+        self.find_replace_btn.setToolTip("Open Find and Replace (Ctrl+F)")
+        self.find_replace_btn.clicked.connect(self._toggle_search_bar)
+
         btn_layout.addWidget(self.save_btn)
         btn_layout.addWidget(self.save_as_btn)
         btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.run_sel_btn)
         btn_layout.addWidget(self.refresh_vars_btn)
+        
+        # Add it to the layout (I suggest putting it before Refresh Vars)
+        btn_layout.addWidget(self.save_btn)
+        btn_layout.addWidget(self.save_as_btn)
+        btn_layout.addWidget(self.run_btn)
+        btn_layout.addWidget(self.run_sel_btn)
+        btn_layout.addWidget(self.find_replace_btn) # Added here
+        btn_layout.addWidget(self.refresh_vars_btn)
+        btn_layout.addStretch(1)
 
         # ------------------------------------------------------------
         # FIRST: Create the menu
@@ -1069,13 +1261,27 @@ BACKUPS:
         main_layout.addWidget(self.status_bar)
 
         # Set up Shortcuts
-        self.save_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+S"), self)
+        self.save_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+S"), self)
         self.save_shortcut.activated.connect(self.save_script)
 
-        self.run_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Return"), self)
+        self.run_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+Return"), self)
         self.run_shortcut.activated.connect(self.execute_code)
 
-        self.run_sel_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Shift+Return"), self)
+        self.run_sel_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+Shift+Return"), self)
+        self.run_sel_shortcut.activated.connect(self.execute_selection)
+
+        # --- Cross-Version Shortcuts (Place at end of _init_ui) ---
+        
+        # Save Shortcut
+        self.save_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+S"), self)
+        self.save_shortcut.activated.connect(self.save_script)
+
+        # Run Full Script
+        self.run_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+Return"), self)
+        self.run_shortcut.activated.connect(self.execute_code)
+
+        # Run Selection
+        self.run_sel_shortcut = UniversalShortcut(QtGui.QKeySequence("Ctrl+Shift+Return"), self)
         self.run_sel_shortcut.activated.connect(self.execute_selection)
 
         self._new_tab("Untitled")
