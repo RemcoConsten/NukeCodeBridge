@@ -30,7 +30,7 @@ except ImportError:
 # ----------------------------------------------------------------------
 
 #base shared is the location where the shared scripts per user will be located 
-BASE_SHARED_PATH        = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeScripts"
+BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeCodeBridge"
 SHOW_RUN_CONFIRMATION   = True
 USE_SINGLE_SHARED_FOLDER = False
 ENABLE_BACKUPS          = True
@@ -62,7 +62,7 @@ def autosave_path(file_path):
 
 def user_scripts_folder(user_folder):
     """Scripts live in a scripts/ subfolder inside the user folder.
-    e.g. Y:/NukeCodeBridge/remco.consten/scripts/"""
+    e.g. \\YOUR_SERVER\YOUR_SHARE\pipeline\NukeCodeBridge\user.name\scripts\\"""
     folder = os.path.join(user_folder, "scripts")
     ensure_directory(folder)
     return folder
@@ -71,13 +71,13 @@ def personal_snippets_path(user_folder, username):
     """Always stores in a user-named subfolder under BASE_SHARED_PATH,
     even when USE_SINGLE_SHARED_FOLDER is True. This keeps personal
     snippets isolated from shared scripts and other users.
-    e.g. Y:/NukeCodeBridge/remco/remco_snippets.json"""
+    e.g. \\YOUR_SERVER\YOUR_SHARE\pipeline\NukeCodeBridge\user.name\user.name_snippets.json"""
     user_dir = os.path.join(BASE_SHARED_PATH, username)
     ensure_directory(user_dir)
     return os.path.join(user_dir, f"{username}_snippets.json")
 
 def shared_snippets_path():
-    """e.g. Y:/NukeCodeBridge/shared_snippets.json"""
+    """e.g. \\YOUR_SERVER\YOUR_SHARE\pipeline\NukeCodeBridge\shared_snippets.json"""
     return os.path.join(BASE_SHARED_PATH, "shared_snippets.json")
 
 # ------------------------------------------------------------------
