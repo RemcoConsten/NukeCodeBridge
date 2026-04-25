@@ -29,8 +29,7 @@ except ImportError:
 # Configuration
 # ----------------------------------------------------------------------
 
-#base shared is the location where the shared scripts per user will be located 
-BASE_SHARED_PATH        = r"X:\\nuke_environment\scripts_sharedlocation"
+BASE_SHARED_PATH        = r"Y:\\nuke_environment\python\NukeCodeBridge"
 SHOW_RUN_CONFIRMATION   = True
 USE_SINGLE_SHARED_FOLDER = False
 ENABLE_BACKUPS          = True
@@ -2743,6 +2742,15 @@ class NukeCodeBridge(QtWidgets.QWidget):
     def _open_script(self, path):
         if not os.path.exists(path):
             self._append_console(f"Script not found: {path}"); return
+
+        # If already open in a tab, just switch to it
+        for i in range(self.tab_widget.count()):
+            editor = self.tab_widget.widget(i)
+            if getattr(editor, "file_path", None) == path:
+                self.tab_widget.setCurrentIndex(i)
+                self._append_console(f"Already open: {os.path.basename(path)}", "action")
+                return
+
         try:
             with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
