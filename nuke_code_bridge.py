@@ -31,10 +31,10 @@ except ImportError:
 
 #base shared is the location where the shared scripts per user will be located 
 BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeCodeBridge"
-SHOW_RUN_CONFIRMATION   = True
-USE_SINGLE_SHARED_FOLDER = False
+SHOW_RUN_CONFIRMATION   = True    # ask before running code
+USE_SINGLE_SHARED_FOLDER = False  # True = everyone shares one folder
 ENABLE_BACKUPS          = True
-MAX_BACKUPS             = 3
+MAX_BACKUPS             = 3       # how many .bak versions to keep
 MAX_HISTORY_ITEMS       = 25      # Sets the number of previously run code kept in the sidebar for quick access. 
 CONFIRM_OVERWRITE       = False   # True = ask before overwriting existing file
 
