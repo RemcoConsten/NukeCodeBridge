@@ -157,7 +157,7 @@ SHOW_RUN_CONFIRMATION     = True    # ask before running code
 USE_SINGLE_SHARED_FOLDER  = False   # True = everyone shares one folder
 ENABLE_BACKUPS            = True
 MAX_BACKUPS               = 3       # how many .bak versions to keep
-MAX_HISTORY_ITEMS         = 25
+MAX_HISTORY_ITEMS         = 25      # Sets the number of previously run code kept in the sidebar for quick access.
 CONFIRM_OVERWRITE         = False   # True = ask before overwriting on save
 AUTOSAVE_INTERVAL_MINUTES = 5       # crash recovery interval (0 = disabled)
 ```
