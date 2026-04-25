@@ -9,7 +9,8 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 ![Stars](https://img.shields.io/github/stars/RemcoConsten/NukeCodeBridge?style=social)
 
-<img width="601" height="416" alt="image" src="https://github.com/user-attachments/assets/4ad18972-02a6-4cdf-882e-9aedfba699d0" />
+<img width="601" height="416" alt="image" src="https://github.com/user-attachments/assets/f8437fd2-1746-4f86-89a6-c1cea2d9d488" />
+
 
 
 **Network-Based Script Manager & Python Editor for Foundry Nuke**
