@@ -30,7 +30,7 @@ except ImportError:
 # ----------------------------------------------------------------------
 
 #base shared is the location where the shared scripts per user will be located 
-BASE_SHARED_PATH        = r"X:\\nuke_environment\scripts_sharedlocation"
+BASE_SHARED_PATH        = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeScripts"
 SHOW_RUN_CONFIRMATION   = True
 USE_SINGLE_SHARED_FOLDER = False
 ENABLE_BACKUPS          = True
