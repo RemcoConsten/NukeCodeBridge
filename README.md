@@ -9,7 +9,8 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 ![Stars](https://img.shields.io/github/stars/RemcoConsten/NukeCodeBridge?style=social)
 
-<img width="601" height="416" alt="image" src="https://github.com/user-attachments/assets/f8437fd2-1746-4f86-89a6-c1cea2d9d488" />
+<img width="601" height="416" alt="image" src="https://github.com/user-attachments/assets/a504487e-73f1-4100-be0d-5c1caeedbad9" />
+
 
 
 
