@@ -1,4 +1,4 @@
-# NukeCodeBridge
+# NukeCodeBridge v0.15
 
 ![Version](https://img.shields.io/badge/version-v0.15-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
@@ -8,12 +8,9 @@
 ![Nuke](https://img.shields.io/badge/Nuke-13.0+-green)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 ![Stars](https://img.shields.io/github/stars/RemcoConsten/NukeCodeBridge?style=social)
-
+<br><br>
 <img width="601" height="416" alt="image" src="https://github.com/user-attachments/assets/a504487e-73f1-4100-be0d-5c1caeedbad9" />
-
-
-
-
+<br><br>
 **Network-Based Script Manager & Python Editor for Foundry Nuke**
 
 NukeCodeBridge is a lightweight, production-oriented tool for VFX studios, teams, and solo artists.
@@ -35,7 +32,217 @@ This tool was an experiment to see if I could use AI as a technical assistant to
 
 ---
 
-## What's New Since v0.12
+## ⚡ Quick Start
+
+1. Drop `nuke_code_bridge.py` into your `.nuke` folder
+2. Add the launcher to your `menu.py` (see [Installation](#installation))
+3. Set `BASE_SHARED_PATH` at the top of the tool file to a folder you have read/write access to
+4. Launch Nuke → **Scripts > NukeCodeBridge**
+
+---
+
+## 🔧 Installation
+
+There are **two completely separate paths** to understand before you start:
+
+| | Path | What it is for |
+|---|---|---|
+| **Tool file** | Where `nuke_code_bridge.py` lives | So Nuke can import and launch the tool |
+| **Shared data** | `BASE_SHARED_PATH` inside the tool | Where scripts, snippets, and comments are stored |
+
+These can be the same folder, but in most studio setups the tool lives in a pipeline tools folder and the data lives in a separate shared folder.
+
+---
+
+### Step 1: Place the tool file
+
+**Option A — Solo artist / simplest setup**
+
+Drop `nuke_code_bridge.py` directly into your `.nuke` folder:
+
+```
+C:\Users\yourname\.nuke\nuke_code_bridge.py
+```
+
+Nuke loads everything in the `.nuke` folder automatically. You do **not** need an `init.py` for this option — skip straight to Step 2.
+
+**Option B — Studio / shared pipeline**
+
+Place the file in a shared tools folder on your server:
+
+```
+\\YOUR_SERVER\YOUR_SHARE\pipeline\tools\nuke_code_bridge.py
+```
+
+Then add this to your `init.py` so Nuke knows where to find it:
+
+```python
+import os
+import nuke
+
+# Option A: set NUKE_CODE_BRIDGE_PATH as a system environment variable on each workstation
+# Option B: replace the fallback string below with the actual path on your server
+TOOL_PATH = os.environ.get(
+    "NUKE_CODE_BRIDGE_PATH",
+    r"\\YOUR_SERVER\YOUR_SHARE\pipeline\tools"   # <-- folder containing nuke_code_bridge.py
+)
+
+if os.path.exists(TOOL_PATH):
+    nuke.pluginAddPath(TOOL_PATH)
+else:
+    print(f"[NukeCodeBridge] Warning: Tool path not found: {TOOL_PATH}")
+```
+
+---
+
+### Step 2: Set up menu.py
+
+**This step is required for both Option A and Option B.**
+
+Add this to your `menu.py` to get the NukeCodeBridge entry in the Nuke menu.
+`importlib.reload` means updates to the tool apply the next time you open it — no Nuke restart needed:
+
+```python
+import nuke
+import importlib
+
+def launch_nuke_code_bridge():
+    try:
+        import nuke_code_bridge
+        importlib.reload(nuke_code_bridge)
+        nuke_code_bridge.start_nuke_code_bridge()
+    except Exception as e:
+        nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
+
+nuke.menu('Nuke').addCommand(
+    'Scripts/NukeCodeBridge',
+    launch_nuke_code_bridge,
+    icon='',       # Optional: place a .png in the same folder and set the filename here
+    tooltip='Network-based Python script manager for studio teams.'
+)
+```
+
+> **Where is menu.py?**
+> For Option A (solo), this is `C:\Users\yourname\.nuke\menu.py` — the same folder as the tool file.
+> For Option B (studio), this is your studio's shared `menu.py`, already loaded by Nuke via `init.py`.
+
+---
+
+### Step 3: Set BASE_SHARED_PATH inside the tool
+
+Open `nuke_code_bridge.py` and set this at the top:
+
+```python
+BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeCodeBridge"
+```
+
+This is the shared folder where all user script folders, snippets, and comments will be stored.
+Every user on the team needs read/write access to this location.
+
+> **Solo artist?** This can be any local folder on your machine:
+> ```python
+> BASE_SHARED_PATH = r"C:\Users\yourname\Documents\NukeCodeBridge"
+> ```
+
+---
+
+## ⚙️ Configuration
+
+All settings are at the top of `nuke_code_bridge.py`:
+
+```python
+BASE_SHARED_PATH          = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeCodeBridge"
+SHOW_RUN_CONFIRMATION     = True    # ask before running code
+USE_SINGLE_SHARED_FOLDER  = False   # True = everyone shares one folder
+ENABLE_BACKUPS            = True
+MAX_BACKUPS               = 3       # how many .bak versions to keep
+MAX_HISTORY_ITEMS         = 25
+CONFIRM_OVERWRITE         = False   # True = ask before overwriting on save
+AUTOSAVE_INTERVAL_MINUTES = 5       # crash recovery interval (0 = disabled)
+```
+
+---
+
+## 🎬 Usage
+
+1. Open Nuke
+2. Go to **Scripts > NukeCodeBridge**
+3. Select a script from the sidebar or start with a new Untitled tab
+4. Edit your Python or Blink code
+5. Save with Ctrl+S — first save: enter a filename in the top bar first
+6. Run with Ctrl+Enter
+7. View output in the console below
+
+---
+
+## 📁 Folder Structure
+
+```
+BASE_SHARED_PATH/
+  shared_snippets.json            <- team-wide snippets
+  username/
+    username_snippets.json        <- personal snippets
+    .session_recovery.json        <- untitled tab restore
+    scripts/
+      myscript.py
+      _backups/
+        myscript/
+          20240101_120000.bak
+      _meta/
+        myscript.meta.json        <- description + comments + read timestamps
+        myscript.meta.lock        <- concurrent write protection
+```
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| Ctrl+S | Save |
+| Ctrl+Enter | Run entire script |
+| Ctrl+Shift+Enter | Run selected text |
+| Ctrl+F | Open Find & Replace |
+| Ctrl+G | Go to line |
+| Ctrl+Shift+T | Reopen last closed tab |
+| Esc | Close Find bar |
+| Ctrl+Mouse Wheel | Zoom editor |
+| Ctrl+0 | Reset zoom |
+| Tab | Indent selection or expand snippet |
+| Shift+Tab | Unindent |
+
+---
+
+## 🧰 Features (v0.15)
+
+| | Category | What it does |
+|---|---|---|
+| 🌐 | **Network Repository** | Per-user script folders on a shared path. Toggle between your folder and `all_users`. Right-click to open location or delete. New scripts go into `username/scripts/`, legacy scripts still show up. |
+| 📑 | **Multi-Tab Editor** | Unlimited tabs with dirty state tracking (`*`), session restore for untitled tabs, duplicate tab, and Ctrl+Shift+T to reopen last closed. |
+| ✏️ | **VS Code-Style Editing** | Dark+ syntax highlighting, line numbers, current line highlight, word-occurrence highlight, indent guides, no line wrapping. Zoom with Ctrl+Wheel or Ctrl+plus/minus/0. |
+| 🔍 | **Search** | Sidebar toggles between Name mode (filter by filename) and Contents mode (search inside all files). Find & Replace with Prev/Next/Replace All and wrap-around. |
+| ⚡ | **Snippet System** | Type a trigger word and press Tab to expand. Amber highlight with 150ms debounce. `$CURSOR$` marks where the cursor lands. Three pools: Built-in (read-only), Shared (team), Personal (yours). Full Snippet Manager with create, edit, delete, move to shared, insert into editor. |
+| 💬 | **Script Info & Comments** | Per-script description and team comments stored in `_meta/`. Unread tracking shows `+N` on the collapsed header. Lock file prevents write conflicts. Last 50 comments per script kept. |
+| 🎛️ | **knobChanged Editing** | Select node(s) in the graph and click Edit knobChanged — each opens in its own tab. Falls back to Node Picker if nothing is selected. Save writes back to the node knob. If the node is deleted, Save As keeps your code as a file. |
+| 🎯 | **Node Picker** | Browse and filter all scene nodes. Pick button starts a 5s countdown — click any new node in the graph to grab it. Pre-existing selections are ignored. Click again to cancel. |
+| ▶️ | **Run Options** | Run entire script, run selection only, or wrap in a for-loop over selected nodes (`node` variable available). Send to Nuke Script Editor pushes code to Nuke's built-in panel. |
+| 💾 | **Save, Backups & Crash Recovery** | Binary-hardened saving. Timestamped `.bak` files on every save, last 3 versions kept. Silent `.autosave` every 5 minutes for dirty tabs — right-click the `⚠` tab to restore or discard. |
+| 🖥️ | **Execution & Console** | Persistent namespace between runs. Full traceback capture. Status light (idle / running / success / error). Console filter by All / Errors Only / Actions+Info. Execution history with double-click restore. Variable explorer. All sidebar panels collapsible. |
+
+**Built-in snippet triggers:**
+
+| Trigger | Expands to |
+|---|---|
+| `fornode` | `for node in nuke.selectedNodes():` |
+| `ifnuke` | `if nuke:` |
+| `tryex` | try/except block |
+| `defn` | function definition |
+| `blink` | Blink kernel template |
+| `blinkp` | Blink param block |
+
+---
+
+## 🆕 What's New Since v0.12
 
 ### v0.15
 - **Snippet system** - trigger words with amber highlight, Tab to expand, `$CURSOR$` placeholder
@@ -46,7 +253,7 @@ This tool was an experiment to see if I could use AI as a technical assistant to
 - **Node Picker** - browse/filter all scene nodes, with Pick button (5s countdown, ignores pre-existing selection)
 - **Name/Contents search toggle** - filter list by name or search inside all files live
 - **Session restore** - untitled tabs with content survive close/reopen
-- **Crash recovery autosave** - silent `[!]` tab indicator, right-click to restore or discard
+- **Crash recovery autosave** - silent `⚠` tab indicator, right-click to restore or discard
 - **scripts/ subfolder** - new scripts save to `username/scripts/`, legacy scripts still show up
 - **Collapsible sidebar panels** - Node Picker, History, Variables, Script Info all collapse/expand
 - **Find & Replace bar** - Ctrl+F with Prev/Next/Replace/Replace All
@@ -85,275 +292,7 @@ This tool was an experiment to see if I could use AI as a technical assistant to
 
 ---
 
-## Features (v0.15)
-
-### Network Repository & Sidebar
-- **Centralized Storage:** Scripts saved to a shared network path, organized per user.
-- **User Sandboxing:** Toggle between your private folder and `all_users` shared repository.
-- **Name Search:** Filter scripts live by filename as you type.
-- **Contents Search:** Search inside all script files live - opens Find bar on load with your term.
-- **scripts/ Subfolder:** New scripts go into `username/scripts/`. Legacy scripts in the root still show up automatically.
-- **Right-click menu:** Open folder location or delete any script.
-
-### Multi-Tab Editor
-- **Unlimited Workspace:** Open as many scripts as needed in tabs.
-- **Dirty State Tracking:** Tabs show `*` when there are unsaved changes.
-- **Session Restore:** Untitled tabs with content are saved and restored on reopen.
-- **Recently Closed:** Reopen the last closed tab with Ctrl+Shift+T.
-- **Duplicate Tab:** Right-click any tab header.
-
-### VS Code-Style Editing
-- **Dark+ Professional Theme:** High-contrast syntax highlighting optimized for long sessions.
-- **Visual Navigation:** Line numbers, current line highlight, word-occurrence highlight.
-- **Indent Guides:** Subtle vertical lines show indentation depth.
-- **No Line Wrapping:** Standard IDE behavior to maintain code structure.
-
-### Find & Replace Suite
-- **Dual-Row UI:** Dedicated bars for Find and Replace.
-- **Bi-Directional Search:** Navigate with Next and Prev controls.
-- **Bulk Replacement:** Replace All wrapped in a single undo block.
-- **Looping Logic:** Wraps from end back to start automatically.
-- **Quick Access:** Ctrl+F to open, Esc to close.
-
-### Snippet System
-- Type a **trigger word** and press **Tab** to expand it into a full code block.
-- The trigger word gets an **amber highlight** when a snippet match is found (150ms debounce).
-- Use `$CURSOR$` in snippet bodies to mark where the cursor lands after expansion.
-- **Three pools:** Built-in (read-only), Shared (whole team), Personal (yours only).
-- **Snippet Manager** - full CRUD: create, edit, delete, move to shared, insert into editor.
-
-**Built-in triggers:**
-
-| Trigger | Expands to |
-|---|---|
-| `fornode` | `for node in nuke.selectedNodes():` |
-| `ifnuke` | `if nuke:` |
-| `tryex` | try/except block |
-| `defn` | function definition |
-| `blink` | Blink kernel template |
-| `blinkp` | Blink param block |
-
-### Script Info & Comments
-- Click any script in the sidebar to load its info panel.
-- **Description** - document what the script does, saved per script.
-- **Comments** - any team member can post a comment; stored in `scripts/_meta/`.
-- **Unread tracking** - the collapsed header shows `+N` for comments from teammates you haven't seen yet. Once you open the panel, they're marked as read.
-- **Lock file protection** - prevents write conflicts when two people comment at the same time.
-- Last 50 comments per script are kept.
-
-### Nuke Integration
-
-**Edit knobChanged**
-- Select node(s) in the node graph, click **Edit knobChanged**, and each node opens in its own tab.
-- If nothing is selected, the Node Picker expands automatically so you can choose.
-- Save writes code back to the node's `knobChanged` knob.
-- If the node is deleted, Save As keeps your code as a `.py` file.
-
-**Node Picker**
-- Browse and filter all nodes in the current Nuke session.
-- **Pick button** - starts a 5-second countdown. Click a node in the graph during the countdown. Pre-existing selections are ignored so you must click something new. Click again to cancel.
-- **Refresh** - updates the node list from the scene.
-
-**Run on Selected Nodes** - wraps your script in `for node in nuke.selectedNodes():`. Use `node` in your code.
-
-**Send to Nuke Script Editor** - pushes the current tab's code to Nuke's built-in Script Editor (must be open).
-
-### Save & Backup System
-- **Binary Hardened Saving:** Saves in `wb` mode to prevent character mangling.
-- **Auto-Backup:** Timestamped `.bak` files in `scripts/_backups/` on every save.
-- **Version Control:** Keeps the last 3 versions of every script automatically.
-- **Crash Recovery:** Silent `.autosave` every 5 minutes for dirty tabs. Tab shows `[!]` prefix if a newer autosave is found on open - right-click to restore or discard. No popup dialogs.
-
-### Execution Engine
-- **Persistent Namespace:** Variables stay in memory between runs.
-- **Hardened Execution:** Captures all `stdout`, `stderr`, and full Python tracebacks.
-- **Status Light:**
-  - Grey: Idle
-  - Yellow: Executing
-  - Green: Success
-  - Red: Error
-
-### Console & Panels
-- **Smart Filters:** Toggle between All, Errors Only, and Actions/Info.
-- **Console menu:** Soft Refresh, Hard Refresh, Full Reset.
-- **Execution History:** Live log of every run. Double-click to restore a snippet.
-- **Variable Explorer:** View every variable in the current session namespace.
-- **Collapsible panels:** Node Picker, History, Variables, Script Info all collapse to save space.
-
----
-
-## Configuration
-
-At the top of `nuke_code_bridge.py`:
-
-```python
-BASE_SHARED_PATH          = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeScripts"
-SHOW_RUN_CONFIRMATION     = True    # ask before running code
-USE_SINGLE_SHARED_FOLDER  = False   # True = everyone shares one folder
-ENABLE_BACKUPS            = True
-MAX_BACKUPS               = 3       # how many .bak versions to keep
-MAX_HISTORY_ITEMS         = 25
-CONFIRM_OVERWRITE         = False   # True = ask before overwriting on save
-AUTOSAVE_INTERVAL_MINUTES = 5       # crash recovery interval (0 = disabled)
-```
-
----
-
-## Installation
-
-### 1. Place the tool file
-
-Copy `nuke_code_bridge.py` into your studio's shared pipeline tools folder:
-
-```
-\\YOUR_SERVER\YOUR_SHARE\pipeline\tools\nuke_code_bridge.py
-```
-
-### 2. Set up init.py
-
-This tells Nuke where to find `nuke_code_bridge.py` so it can import it.
-Set the path via an environment variable (recommended for studios so you don't have to edit this file when paths change) or hardcode it directly:
-
-```python
-import os
-import nuke
-
-# Option A: set NUKE_CODE_BRIDGE_PATH as a system environment variable on each workstation
-# Option B: replace the fallback string below with the actual path on your server
-TOOL_PATH = os.environ.get(
-    "NUKE_CODE_BRIDGE_PATH",
-    r"\\YOUR_SERVER\YOUR_SHARE\pipeline\tools"   # <-- path to the folder containing nuke_code_bridge.py
-)
-
-if os.path.exists(TOOL_PATH):
-    nuke.pluginAddPath(TOOL_PATH)
-else:
-    # Using print instead of nuke.message to avoid hanging on render nodes
-    print(f"[NukeCodeBridge] Warning: Tool path not found: {TOOL_PATH}")
-```
-
-### 3. Set up menu.py
-
-This adds NukeCodeBridge to the Nuke menu.
-`importlib.reload` means any updates to `nuke_code_bridge.py` apply the next time
-you open the tool - no Nuke restart needed:
-
-```python
-import nuke
-import importlib
-
-def launch_nuke_code_bridge():
-    try:
-        import nuke_code_bridge
-        importlib.reload(nuke_code_bridge)
-        nuke_code_bridge.start_nuke_code_bridge()
-    except Exception as e:
-        nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
-
-nuke.menu('Nuke').addCommand(
-    'Scripts/NukeCodeBridge',
-    launch_nuke_code_bridge,
-    icon='',       # Optional: place a .png in the same folder and set the filename here
-    tooltip='Network-based Python script manager for studio teams.'
-)
-```
-
-### 4. Configure BASE_SHARED_PATH inside the tool
-
-Open `nuke_code_bridge.py` and set this at the top:
-
-```python
-BASE_SHARED_PATH = r"\\YOUR_SERVER\YOUR_SHARE\pipeline\NukeScripts"
-```
-
-> **Two different paths to understand:**
->
-> - The **tools folder** set in `init.py` is where `nuke_code_bridge.py` itself lives.
->   Nuke needs this path to be able to import the file.
->
-> - `BASE_SHARED_PATH` set inside the tool is the shared network folder where all
->   user script folders, snippets, and comments are stored.
->   Every user on the team needs read/write access to this location.
->
-> These can be the same folder, but in most studio setups the tool lives
-> in a pipeline tools folder and the data lives in a separate shared folder.
-
----
-
-## Usage
-
-1. Open Nuke
-2. Go to **Scripts > NukeCodeBridge**
-3. Select a script from the sidebar or start with a new Untitled tab
-4. Edit your Python or Blink code
-5. Save with Ctrl+S - first save: enter a filename in the top bar first
-6. Run with Ctrl+Enter
-7. View output in the console below
-
----
-
-## Folder Structure
-
-```
-BASE_SHARED_PATH/
-  shared_snippets.json            <- team-wide snippets
-  username/
-    username_snippets.json        <- personal snippets
-    .session_recovery.json        <- untitled tab restore
-    scripts/
-      myscript.py
-      _backups/
-        myscript/
-          20240101_120000.bak
-      _meta/
-        myscript.meta.json        <- description + comments + read timestamps
-        myscript.meta.lock        <- concurrent write protection
-```
-
----
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|---|---|
-| Ctrl+S | Save |
-| Ctrl+Enter | Run entire script |
-| Ctrl+Shift+Enter | Run selected text |
-| Ctrl+F | Open Find & Replace |
-| Ctrl+G | Go to line |
-| Ctrl+Shift+T | Reopen last closed tab |
-| Esc | Close Find bar |
-| Ctrl+Mouse Wheel | Zoom editor |
-| Ctrl+0 | Reset zoom |
-| Tab | Indent selection or expand snippet |
-| Shift+Tab | Unindent |
-
----
-
-## Roadmap
-
-### Completed
-- Network repository with per-user sandboxing
-- Multi-tab editor with session restore
-- VS Code Dark+ theme
-- Line numbers, occurrence highlight, indent guides
-- Zoom system
-- Find & Replace suite
-- Go to Line
-- Snippet system with personal/shared/built-in pools
-- Snippet Manager
-- Script Info & Comments with unread tracking
-- knobChanged editing with Node Picker
-- Pick button with countdown and pre-selection ignore
-- Run on Selected Nodes
-- Send to Nuke Script Editor
-- Crash recovery autosave (silent, right-click to restore)
-- Backup system (3 versions)
-- Persistent namespace + variable explorer
-- Execution history
-- Collapsible sidebar panels
-- Manual tab built into the tool
-- Nuke 15 + 17 compatibility (PySide2 + PySide6)
+## 🗺️ Roadmap
 
 ### Planned
 - Git integration
@@ -366,48 +305,7 @@ BASE_SHARED_PATH/
 
 ---
 
-## Changelog
-
-### v0.15
-- Snippet system with Tab expansion and amber highlight
-- Snippet Manager (personal / shared / built-in pools)
-- Script Info & Comments per script with unread tracking
-- Smart knobChanged editing from node graph selection
-- Node Picker with Pick countdown (ignores pre-existing selection)
-- Name/Contents search toggle
-- Session restore for untitled tabs
-- Silent crash recovery autosave with tab indicator
-- scripts/ subfolder organization with legacy fallback
-- Collapsible sidebar panels
-- Find & Replace, Go to Line, Reopen Last Closed Tab
-- Run on Selected Nodes, Send to Nuke Script Editor
-- Full Manual tab built into the tool
-- Nuke 15 + 17 compatibility fixes
-
-### v0.12
-- Major UI overhaul
-- Multi-tab support
-- VS Code-style theme
-- Word-occurrence + line highlight
-- Zoom system
-- Improved console
-- Backup system rewrite
-
-### v0.11
-- Modular refactor
-- Basic multi-tab
-- Improved repository handling
-- Save + backup system
-- Console redirection
-
-### v0.9
-- Initial public beta
-- Single-tab editor
-- Basic execution
-
----
-
-## Requirements
+## 📋 Requirements
 
 - **Foundry Nuke:** 13.0 or newer (Tested on Nuke 15 and 17)
 - **Python:** 3.7+ (Standard with Nuke 13+)
@@ -415,7 +313,7 @@ BASE_SHARED_PATH/
 
 ---
 
-## Security & Usage
+## 🔒 Security & Usage
 
 - **Trust:** Only execute scripts from trusted team members.
 - **Caution:** This tool uses Python's `exec()` - just like Nuke's Script Editor.
@@ -425,7 +323,7 @@ BASE_SHARED_PATH/
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 Contributions, discussions, and ideas are welcome!
 Submit Pull Requests or open Issues - especially if you are testing on Linux or macOS.
