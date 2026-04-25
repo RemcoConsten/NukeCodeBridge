@@ -35,7 +35,7 @@ SHOW_RUN_CONFIRMATION   = True
 USE_SINGLE_SHARED_FOLDER = False
 ENABLE_BACKUPS          = True
 MAX_BACKUPS             = 3
-MAX_HISTORY_ITEMS       = 25
+MAX_HISTORY_ITEMS       = 25      # Sets the number of previously run code kept in the sidebar for quick access. 
 CONFIRM_OVERWRITE       = False   # True = ask before overwriting existing file
 
 # Crash-recovery autosave interval in minutes (0 = disabled).
