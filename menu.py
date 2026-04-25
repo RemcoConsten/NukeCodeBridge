@@ -1,15 +1,25 @@
+# ==============================================================================
+# NukeCodeBridge - menu.py
+# ==============================================================================
+#
+# PURPOSE:
+#   Adds NukeCodeBridge to the Nuke menu so artists can launch it.
+#
+# HOW IT WORKS:
+#   importlib.reload() is used so that any changes made to nuke_code_bridge.py
+#   are applied the next time you launch it — without restarting Nuke.
+#   Useful during development or when the studio pushes updates.
+#
+# ICON (optional):
+#   Place a .png file in the same folder as this menu.py and set the
+#   icon parameter below to its filename, e.g. icon='NukeCodeBridge.png'
+# ==============================================================================
+
 import nuke
 import importlib
 
-# ==============================================================================
-# NukeCodeBridge - Menu Entry
-# ==============================================================================
 
 def launch_nuke_code_bridge():
-    """
-    Imports and launches the NukeCodeBridge UI.
-    Using importlib.reload ensures code changes are applied without restarting Nuke.
-    """
     try:
         import nuke_code_bridge
         importlib.reload(nuke_code_bridge)
@@ -17,11 +27,10 @@ def launch_nuke_code_bridge():
     except Exception as e:
         nuke.message(f"Failed to load NukeCodeBridge:\n{str(e)}")
 
-# Add to the Nuke 'Nodes' menu or the top 'Nuke' menu bar
-toolbar = nuke.menu('Nuke')
-toolbar.addCommand(
-    'Scripts/NukeCodeBridge', 
-    launch_nuke_code_bridge, 
-    icon='', # Optional: add a .png icon name here
+
+nuke.menu('Nuke').addCommand(
+    'Scripts/NukeCodeBridge',
+    launch_nuke_code_bridge,
+    icon='',      # Optional: 'NukeCodeBridge.png'
     tooltip='Network-based Python script manager for studio teams.'
 )
