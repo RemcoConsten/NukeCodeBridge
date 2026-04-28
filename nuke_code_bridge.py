@@ -1221,14 +1221,20 @@ class NukeCodeBridge(QtWidgets.QWidget):
         search_text = self.editor_search_edit.text()
         if not search_text:
             self._append_console("Please enter text to find.", "error"); return
-        content = editor.toPlainText()
-        count = content.count(search_text)
+        replace_text = self.editor_replace_edit.text()
+        count = editor.toPlainText().count(search_text)
         if count == 0:
             self._append_console(f"No occurrences of '{search_text}' found.", "info"); return
-        cursor = editor.textCursor()
-        cursor.beginEditBlock()
-        editor.setPlainText(content.replace(search_text, self.editor_replace_edit.text()))
-        cursor.endEditBlock()
+        doc = editor.document()
+        block_cursor = QtGui.QTextCursor(doc)
+        block_cursor.beginEditBlock()
+        find_cursor = QtGui.QTextCursor(doc)
+        while True:
+            find_cursor = doc.find(search_text, find_cursor)
+            if find_cursor.isNull():
+                break
+            find_cursor.insertText(replace_text)
+        block_cursor.endEditBlock()
         self._append_console(f"Replaced {count} occurrence(s).", "info")
 
     # ------------------------------------------------------------------
@@ -1459,7 +1465,6 @@ class NukeCodeBridge(QtWidgets.QWidget):
             editor.zoomOut(-self.global_zoom)
         editor.textChanged.connect(self._on_editor_modified)
         editor.zoomChanged.connect(self._on_editor_zoom_changed)
-        editor.textChanged.connect(self._save_session_state)
         return editor
 
     # ------------------------------------------------------------------
@@ -2500,9 +2505,6 @@ class NukeCodeBridge(QtWidgets.QWidget):
             self._append_console("PYTHON ERROR:", "error")
             self._append_console("".join(traceback.format_exception(etype, value, tb)), "error")
             self._append_console("-" * 50, "error")
-        finally:
-            sys.stdout = sys.__stdout__
-            sys.stderr = sys.__stderr__
 
         self.status_light.setStyleSheet(
             "color:#6A9955; font-size:18px;" if success else "color:#F44747; font-size:18px;"
