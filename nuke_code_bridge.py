@@ -6,6 +6,7 @@ from __future__ import print_function
 import re
 import os
 import sys
+import subprocess
 import traceback
 import datetime
 import __main__
@@ -911,9 +912,9 @@ class SnippetManagerDialog(QtWidgets.QDialog):
             if sys.platform.startswith("win"):
                 os.startfile(folder)
             elif sys.platform == "darwin":
-                os.system(f'open "{folder}"')
+                subprocess.run(["open", folder])
             else:
-                os.system(f'xdg-open "{folder}"')
+                subprocess.run(["xdg-open", folder])
         except Exception as e:
             QtWidgets.QMessageBox.warning(self, "Error", str(e))
 
@@ -2722,8 +2723,8 @@ class NukeCodeBridge(QtWidgets.QWidget):
         folder = os.path.dirname(path)
         try:
             if sys.platform.startswith("win"): os.startfile(folder)
-            elif sys.platform == "darwin": os.system(f'open "{folder}"')
-            else: os.system(f'xdg-open "{folder}"')
+            elif sys.platform == "darwin": subprocess.run(["open", folder])
+            else: subprocess.run(["xdg-open", folder])
         except Exception as e:
             self._append_console(f"Failed to open folder: {e}")
 
