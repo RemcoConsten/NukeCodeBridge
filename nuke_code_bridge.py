@@ -117,6 +117,7 @@ def write_meta(scripts_folder, script_name, data):
             if time.time() - os.path.getmtime(lock) > 10:
                 os.remove(lock); break
         except Exception: pass
+        QtWidgets.QApplication.processEvents()
         time.sleep(0.5)
     try:
         with open(lock, "w") as f: f.write(str(os.getpid()))
